@@ -17,11 +17,19 @@ function file(ns: string, key: string) {
   return path.join(root(), ns, `${slug(key)}.json`);
 }
 
+/** Curated results committed to git (data/cache/showcase/<ns>/), so a fresh clone or deploy has them. */
+const showcaseFile = (ns: string, key: string) => path.join(DATA_DIR, "cache", "showcase", ns, `${slug(key)}.json`);
+
 export async function cacheGet<T>(ns: string, key: string): Promise<T | null> {
   try {
     return JSON.parse(await fs.readFile(file(ns, key), "utf8")) as T;
   } catch {
-    return null;
+    if (isMock()) return null;
+    try {
+      return JSON.parse(await fs.readFile(showcaseFile(ns, key), "utf8")) as T;
+    } catch {
+      return null;
+    }
   }
 }
 
