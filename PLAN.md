@@ -42,16 +42,17 @@ Targets: Best Use of Gemini, Best AI Hack, Best Social Impact, main awards.
 | 4 | UI: landing, map, ballot view, race view, research progress | Sonnet worker | done, verified in browser (desktop + mobile) |
 | 5 | Alachua 2026 general ballot from official sources → seed JSON | Haiku → Opus | done: 16 races / 43 candidates from FL DOS export; **county + municipal races missing** (county site blocks bots) |
 | 6 | Integration + end-to-end test | Opus | done on test data (address → map → ballot → race → profile → research) |
-| 7 | Showcase Deep Research runs (≤ budget) | Opus | **blocked: needs GEMINI_API_KEY** |
+| 7 | Showcase Deep Research runs (≤ budget) | Opus | done: CD 3, U.S. Senate, Governor, State Senate 6 (25–35k chars, 35–50 sources each), committed as showcase |
 | 8 | "Your district changed" (119th → 120th Congress) + map/title polish | Sonnet worker | done, verified (Tampa 14 → 12) |
 | 9 | README + Devpost draft | Haiku assistant | done (DEVPOST.md, README.md) |
 
-## Status — morning of Sat Oct 24
-- App runs end to end on test data: `cd web && MOCK_AI=1 npm run dev` → http://localhost:3000.
-- Real data already live: districts (Census), map boundaries, the Alachua ballot (16 races / 43 candidates from FL Division of Elections), old-vs-new district callout.
-- **Not yet run live:** Gemini candidate profiles, Q&A, AI ballots outside Alachua, Deep Research. All blocked on the API key. Spend so far: $0.
-- Demo tip: Gainesville's congressional district didn't change; use a Tampa address to show the "district changed" callout.
-- Next once the key exists: verify Flash model ID, run 1 live profile + Q&A, run the first Deep Research job, check the report/citation parsing, then precompute 3–4 showcase races (≤ $25).
+## Status — Fri Oct 23, evening
+- Everything runs live: `cd web && npm run dev` → http://localhost:3000 (key in repo-root `.env`).
+- Verified live: Flash candidate profile (~30 s, ~$0.03, 16 sources), Q&A (~14 s), Deep Research (~7–8 min per race).
+- Showcase reports precomputed + committed: `fl-us-house-3`, `fl-us-senate`, `fl-governor`, `fl-state-senate-6`.
+- Spend: ~$12 of $25 (Deep Research recorded at a flat $3 estimate per run; check the real number in Google Cloud Billing).
+- Demo address: a Gainesville address in CD 3 / SD 6 (e.g. near UF) shows all four showcase races. Use a Tampa address for the "district changed" callout.
+- Open: county/city races missing from the Alachua ballot; live AI ballots outside Alachua untested; hosting undecided.
 
 ## Demo script (3-minute video / finals pitch — draft)
 1. **Hook (20 s):** "Election day is Nov 3. Most voters know who's running for governor. Almost nobody knows who's running for the seats further down the ballot, so they skip those races or guess. And in Florida, 21 of 28 congressional districts were redrawn this May."
