@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { parseQuery } from "@/lib/api";
@@ -13,6 +14,11 @@ export function RacePage({ raceId }: { raceId: string }) {
   const qs = sp.toString();
   const data = useBallotData(parseQuery(sp));
   const race = data.ballot?.races.find((r) => r.id === raceId);
+
+  const raceTitle = race?.title;
+  useEffect(() => {
+    document.title = raceTitle ? `${raceTitle} | BallotScout` : "Race | BallotScout";
+  }, [raceTitle]);
 
   if (data.status === "empty")
     return (

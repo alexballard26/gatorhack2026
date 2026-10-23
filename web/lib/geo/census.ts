@@ -11,6 +11,7 @@ const LAYERS = {
   congressional: { url: `${TIGER}/Legislative/MapServer/0/query`, vintage: "120th Congressional Districts" },
   stateSenate: { url: `${TIGER}/Legislative/MapServer/1/query`, vintage: "2026 State Legislative Districts" },
   stateHouse: { url: `${TIGER}/Legislative/MapServer/2/query`, vintage: "2026 State Legislative Districts" },
+  previousCongressional: { url: `${TIGER}/Legislative/MapServer/4/query`, vintage: "119th Congressional Districts" },
   county: { url: `${TIGER}/State_County/MapServer/1/query`, vintage: "Current counties" },
 } as const;
 
@@ -176,14 +177,38 @@ export async function getBoundaries(geoids: Record<keyof DistrictBoundaries, str
   return out;
 }
 
+/** Previous (119th Congress) congressional district at a point. Best-effort: undefined on failure. */
+async function lookupPreviousCongressional(lat: number, lng: number): Promise<{ district: string; geoid: string } | undefined> {
+  try {
+    const params = new URLSearchParams({
+      geometry: `${lng},${lat}`,
+      geometryType: "esriGeometryPoint",
+      inSR: "4326",
+      spatialRel: "esriSpatialRelIntersects",
+      outFields: "GEOID,NAME,BASENAME",
+      returnGeometry: "false",
+      f: "json",
+    });
+    const data = await fetchJson(`${LAYERS.previousCongressional.url}?${params}`);
+    const a = data?.features?.[0]?.attributes;
+    if (!a?.GEOID) return undefined;
+    const district = /at large/i.test(a.NAME ?? "") || /^(00|98)$/.test(a.BASENAME ?? "") ? "AL" : stripLeadingZeros(a.BASENAME);
+    return district ? { district, geoid: a.GEOID } : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export async function resolveDistricts(
   input: { address: string } | { lat: number; lng: number },
 ): Promise<DistrictsResponse & { boundaryVintage: string }> {
   const { location, geoids } = "address" in input ? await lookupAddress(input.address) : await lookupPoint(input.lat, input.lng);
-  const boundaries = await getBoundaries(geoids);
+  const prev = location.lat != null && location.lng != null ? await lookupPreviousCongressional(location.lat, location.lng) : undefined;
+  if (prev) location.previousCongressionalDistrict = prev.district;
+  const boundaries = await getBoundaries({ ...geoids, previousCongressional: prev?.geoid });
   return {
     location,
     boundaries,
-    boundaryVintage: "120th Congressional Districts; 2026 State Legislative Districts",
+    boundaryVintage: "120th Congressional Districts (previous: 119th); 2026 State Legislative Districts",
   };
 }

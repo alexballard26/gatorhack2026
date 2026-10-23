@@ -25,6 +25,8 @@ export interface VoterLocation {
   stateHouseDistrict?: string;
   /** Incorporated place, e.g. "Gainesville", if inside one. */
   place?: string;
+  /** Congressional district for the same point under the previous (119th Congress) map. */
+  previousCongressionalDistrict?: string;
   /** How this location was determined. */
   method: "address" | "map-click" | "manual";
 }
@@ -35,6 +37,8 @@ export interface DistrictBoundaries {
   stateSenate?: GeoJSON.Feature;
   stateHouse?: GeoJSON.Feature;
   county?: GeoJSON.Feature;
+  /** Previous (119th Congress) congressional district containing the same point. */
+  previousCongressional?: GeoJSON.Feature;
 }
 
 /** GET /api/districts?address=... or ?lat=..&lng=.. */

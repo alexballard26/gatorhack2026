@@ -7,6 +7,7 @@ import type { DistrictBoundaries } from "@/lib/types";
 type LayerKey = keyof DistrictBoundaries;
 
 const LAYERS: { key: LayerKey; label: string; color: string; dash?: number[] }[] = [
+  { key: "previousCongressional", label: "Old congressional district (2024)", color: "#6b7280", dash: [2, 2] },
   { key: "county", label: "County", color: "#475569", dash: [3, 2] },
   { key: "congressional", label: "Congressional district", color: "#0f766e" },
   { key: "stateSenate", label: "State senate district", color: "#b45309" },
@@ -48,7 +49,7 @@ export default function MapView({ boundaries, point, onPick, showLegend = true, 
   const onPickRef = useRef(onPick);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [visible, setVisible] = useState<Record<LayerKey, boolean>>({ county: true, congressional: true, stateSenate: true, stateHouse: true });
+  const [visible, setVisible] = useState<Record<LayerKey, boolean>>({ county: true, congressional: true, stateSenate: true, stateHouse: true, previousCongressional: false });
 
   useEffect(() => {
     onPickRef.current = onPick;
@@ -84,6 +85,10 @@ export default function MapView({ boundaries, point, onPick, showLegend = true, 
           paint: { "line-color": l.color, "line-width": 2.5, ...(l.dash ? { "line-dasharray": l.dash } : {}) },
         });
       }
+      // Keep the (required) attribution but start collapsed so it doesn't cover the map on phones.
+      const attrib = el.current?.querySelector(".maplibregl-ctrl-attrib");
+      attrib?.removeAttribute("open");
+      attrib?.classList.remove("maplibregl-compact-show");
       setReady(true);
     });
     map.on("click", (e) => onPickRef.current?.(e.lngLat.lat, e.lngLat.lng));
@@ -105,7 +110,7 @@ export default function MapView({ boundaries, point, onPick, showLegend = true, 
     for (const l of LAYERS) {
       const f = boundaries?.[l.key];
       (map.getSource(`d-${l.key}`) as GeoJSONSource | undefined)?.setData(f ? { type: "FeatureCollection", features: [f] } : EMPTY);
-      if (f) feats.push(f);
+      if (f && l.key !== "previousCongressional") feats.push(f);
     }
     const box = bbox(feats);
     if (box) {

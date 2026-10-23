@@ -5,7 +5,7 @@ import { parseQuery } from "@/lib/api";
 import type { Race } from "@/lib/types";
 import { useBallotData } from "./useBallotData";
 import { MapLazy } from "./MapLazy";
-import { LocationSummary, locationLabels } from "./LocationSummary";
+import { DistrictChangeNotice, LocationSummary, locationLabels } from "./LocationSummary";
 import { EmptyState, ErrorBox, ProvenanceBadge, Skeleton } from "./ui";
 
 const GROUPS: { title: string; match: (r: Race) => boolean }[] = [
@@ -98,6 +98,7 @@ export function BallotPage() {
         </div>
 
         <div className="lg:order-1">
+          {data.location && <DistrictChangeNotice loc={data.location} boundaries={data.boundaries} />}
           {data.status === "loading" && (
             <div role="status" aria-live="polite">
               <p className="mb-3 text-sm font-medium text-teal-900">{data.stage}</p>
