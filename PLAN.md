@@ -44,5 +44,17 @@ Targets: Best Use of Gemini, Best AI Hack, Best Social Impact, main awards.
 | 6 | Integration + end-to-end test | Opus + worker | pending |
 | 7 | Showcase Deep Research runs (≤ budget) | Opus | pending |
 
-## Demo script
-_TBD_
+## Demo script (3-minute video / finals pitch — draft)
+1. **Hook (20 s):** "Election day is Nov 3. Most voters know who's running for governor. Almost nobody knows who's running for the seats further down the ballot, so they skip those races or guess. And in Florida, 21 of 28 congressional districts were redrawn this May."
+2. **Locate (20 s):** type a Gainesville address → map shows the new 2026 districts → (if built) "Your district changed" callout.
+3. **Ballot (20 s):** every race grouped by level, "Verified from official election records" badge, verify link.
+4. **Profile (30 s):** open a race → expand a candidate → neutral summary, every line cited.
+5. **The new tech (60 s):** click "Deep Research this race" on a *precomputed* race to show the finished report, and show the live progress timeline on one started on stage. Explain: Gemini Deep Research agent, released to developers Dec 11, 2025; reads dozens of sources over several minutes; we constrain it to a fixed neutral template with citations.
+6. **Difficulties (20 s):** neutrality, hallucinations (no source → not shown), cost/latency → on-demand + cache: "we only pay to research a race the first time any voter opens it."
+7. **Close (10 s):** cost at scale (~cents per voter, see COSTS.md), what's next (county races, more states, languages).
+
+## Morning checklist (user)
+- [ ] `.env` with `GEMINI_API_KEY` (billing on) — nothing live has run without it
+- [ ] Confirm teammates (2–5 registered) — solo not eligible
+- [ ] Ask an organizer about AI coding tools at check-in
+- [ ] Optional: download Alachua's official 2026 sample ballot PDF from votealachua.gov so we can add county/city races
