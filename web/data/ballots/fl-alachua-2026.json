@@ -1,0 +1,574 @@
+{
+  "electionName": "2026 General Election",
+  "electionDate": "2026-11-03",
+  "state": "FL",
+  "county": "Alachua",
+  "verifyUrl": "https://www.votealachua.gov/",
+  "sources": [
+    {
+      "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+      "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+    },
+    {
+      "title": "Florida Division of Elections \u2014 Constitutional amendments database",
+      "url": "https://constitutionalinitiatives.dos.fl.gov/"
+    },
+    {
+      "title": "U.S. Census TIGERweb \u2014 120th Congressional & 2026 state legislative districts intersecting Alachua County",
+      "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/Legislative/MapServer"
+    }
+  ],
+  "compiledAt": "2026-10-23T22:08:48+00:00",
+  "notes": "Federal, state, legislative and judicial contests from the official Florida Division of Elections export (status = Qualified). Unopposed candidates (e.g. State House 21, circuit judges) do not appear on Florida ballots and are omitted. County and municipal contests are filed with the county Supervisor of Elections and are not yet included.",
+  "races": [
+    {
+      "id": "fl-us-senate",
+      "title": "United States Senator",
+      "level": "federal",
+      "description": "Represents Florida in the U.S. Senate (special election for the remainder of the term).",
+      "kind": "candidate",
+      "candidates": [
+        {
+          "id": "fl-us-senate-gillespie",
+          "name": "Neil Gillespie",
+          "party": "No Party Affiliation",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        },
+        {
+          "id": "fl-us-senate-moody",
+          "name": "Ashley Moody",
+          "party": "Republican",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        },
+        {
+          "id": "fl-us-senate-nixon",
+          "name": "Angie Nixon",
+          "party": "Democratic",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "fl-us-house-3",
+      "title": "Representative in Congress, District 3",
+      "level": "federal",
+      "description": "Represents Florida's 3rd Congressional District in the U.S. House.",
+      "kind": "candidate",
+      "candidates": [
+        {
+          "id": "fl-us-house-3-cammack",
+          "name": "Kat Cammack",
+          "party": "Republican",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        },
+        {
+          "id": "fl-us-house-3-harp",
+          "name": "Seth Harp",
+          "party": "Democratic",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        },
+        {
+          "id": "fl-us-house-3-klein",
+          "name": "Mike Klein",
+          "party": "No Party Affiliation",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        }
+      ],
+      "appliesTo": {
+        "congressionalDistrict": "3"
+      }
+    },
+    {
+      "id": "fl-us-house-6",
+      "title": "Representative in Congress, District 6",
+      "level": "federal",
+      "description": "Represents Florida's 6th Congressional District in the U.S. House.",
+      "kind": "candidate",
+      "candidates": [
+        {
+          "id": "fl-us-house-6-fine",
+          "name": "Randy Fine",
+          "party": "Republican",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        },
+        {
+          "id": "fl-us-house-6-parrott",
+          "name": "Andrew Parrott",
+          "party": "Libertarian",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        },
+        {
+          "id": "fl-us-house-6-pavlik",
+          "name": "Alec Pavlik",
+          "party": "Write-in",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        },
+        {
+          "id": "fl-us-house-6-yonce",
+          "name": "Eric Yonce",
+          "party": "Democratic",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        }
+      ],
+      "appliesTo": {
+        "congressionalDistrict": "6"
+      }
+    },
+    {
+      "id": "fl-governor",
+      "title": "Governor and Lieutenant Governor",
+      "level": "state",
+      "description": "Florida's chief executive, elected with a running mate for a four-year term.",
+      "kind": "candidate",
+      "candidates": [
+        {
+          "id": "fl-governor-abrams",
+          "name": "Dean Abrams",
+          "party": "No Party Affiliation",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        },
+        {
+          "id": "fl-governor-anderson",
+          "name": "Kathy Anderson",
+          "party": "Write-in",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        },
+        {
+          "id": "fl-governor-burkett",
+          "name": "Charles Burkett",
+          "party": "No Party Affiliation",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        },
+        {
+          "id": "fl-governor-datto",
+          "name": "Jeffrey Datto",
+          "party": "No Party Affiliation",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        },
+        {
+          "id": "fl-governor-dimanche",
+          "name": "Moliere Dimanche",
+          "party": "No Party Affiliation",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        },
+        {
+          "id": "fl-governor-donalds",
+          "name": "Byron Donalds",
+          "party": "Republican",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        },
+        {
+          "id": "fl-governor-jewett",
+          "name": "Scott Jewett",
+          "party": "Libertarian",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        },
+        {
+          "id": "fl-governor-jolly",
+          "name": "David Jolly",
+          "party": "Democratic",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        },
+        {
+          "id": "fl-governor-morris",
+          "name": "Erik Morris",
+          "party": "Write-in",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        },
+        {
+          "id": "fl-governor-russo",
+          "name": "Frank Russo",
+          "party": "No Party Affiliation",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "fl-attorney-general",
+      "title": "Attorney General",
+      "level": "state",
+      "description": "Florida's chief legal officer; a member of the Cabinet.",
+      "kind": "candidate",
+      "candidates": [
+        {
+          "id": "fl-attorney-general-rodriguez",
+          "name": "Jose Rodriguez",
+          "party": "Democratic",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        },
+        {
+          "id": "fl-attorney-general-uthmeier",
+          "name": "James Uthmeier",
+          "party": "Republican",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "fl-cfo",
+      "title": "Chief Financial Officer",
+      "level": "state",
+      "description": "Oversees state finances and insurance regulation; a member of the Cabinet.",
+      "kind": "candidate",
+      "candidates": [
+        {
+          "id": "fl-cfo-ingoglia",
+          "name": "Blaise Ingoglia",
+          "party": "Republican",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        },
+        {
+          "id": "fl-cfo-taddeo",
+          "name": "Annette Taddeo",
+          "party": "Democratic",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "fl-agriculture-commissioner",
+      "title": "Commissioner of Agriculture",
+      "level": "state",
+      "description": "Leads the Department of Agriculture and Consumer Services; a member of the Cabinet.",
+      "kind": "candidate",
+      "candidates": [
+        {
+          "id": "fl-agriculture-commissioner-gibson",
+          "name": "Kyle Gibson",
+          "party": "Write-in",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        },
+        {
+          "id": "fl-agriculture-commissioner-mendoza-atkins",
+          "name": "Joey Mendoza Atkins",
+          "party": "Democratic",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        },
+        {
+          "id": "fl-agriculture-commissioner-simpson",
+          "name": "Wilton Simpson",
+          "party": "Republican",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "fl-state-senate-6",
+      "title": "State Senator, District 6",
+      "level": "state",
+      "description": "Represents Senate District 6 in the Florida Legislature.",
+      "kind": "candidate",
+      "candidates": [
+        {
+          "id": "fl-state-senate-6-bellamy-fults",
+          "name": "Jason Bellamy-Fults",
+          "party": "Democratic",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        },
+        {
+          "id": "fl-state-senate-6-bradley",
+          "name": "Jennifer Bradley",
+          "party": "Republican",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        },
+        {
+          "id": "fl-state-senate-6-thornton",
+          "name": "Joseph Thornton",
+          "party": "American Solidarity",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        }
+      ],
+      "appliesTo": {
+        "stateSenateDistrict": "6"
+      }
+    },
+    {
+      "id": "fl-state-house-10",
+      "title": "State Representative, District 10",
+      "level": "state",
+      "description": "Represents House District 10 in the Florida Legislature.",
+      "kind": "candidate",
+      "candidates": [
+        {
+          "id": "fl-state-house-10-batley",
+          "name": "James Batley",
+          "party": "Write-in",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        },
+        {
+          "id": "fl-state-house-10-malwitz-jipson",
+          "name": "Merrillee Malwitz Jipson",
+          "party": "Democratic",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        },
+        {
+          "id": "fl-state-house-10-rawson",
+          "name": "Marshall Rawson",
+          "party": "Republican",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        }
+      ],
+      "appliesTo": {
+        "stateHouseDistrict": "10"
+      }
+    },
+    {
+      "id": "fl-state-house-20",
+      "title": "State Representative, District 20",
+      "level": "state",
+      "description": "Represents House District 20 in the Florida Legislature.",
+      "kind": "candidate",
+      "candidates": [
+        {
+          "id": "fl-state-house-20-butler",
+          "name": "Lee Butler",
+          "party": "Democratic",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        },
+        {
+          "id": "fl-state-house-20-sapp",
+          "name": "Judson Sapp",
+          "party": "Republican",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        }
+      ],
+      "appliesTo": {
+        "stateHouseDistrict": "20"
+      }
+    },
+    {
+      "id": "fl-state-house-22",
+      "title": "State Representative, District 22",
+      "level": "state",
+      "description": "Represents House District 22 in the Florida Legislature.",
+      "kind": "candidate",
+      "candidates": [
+        {
+          "id": "fl-state-house-22-johnson",
+          "name": "Chad Johnson",
+          "party": "Republican",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        },
+        {
+          "id": "fl-state-house-22-trask",
+          "name": "Amy Trask",
+          "party": "Democratic",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        }
+      ],
+      "appliesTo": {
+        "stateHouseDistrict": "22"
+      }
+    },
+    {
+      "id": "fl-supreme-court-retention",
+      "title": "Supreme Court Justice \u2014 Retention",
+      "level": "judicial",
+      "description": "Voters decide whether the justice remains on the Florida Supreme Court for another term.",
+      "kind": "retention",
+      "candidates": [
+        {
+          "id": "fl-supreme-court-retention-muniz",
+          "name": "Carlos Muniz",
+          "party": "Nonpartisan",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "fl-1st-dca-retention",
+      "title": "First District Court of Appeal \u2014 Retention",
+      "level": "judicial",
+      "description": "Voters decide whether each judge remains on the First District Court of Appeal, which hears appeals from Alachua County.",
+      "kind": "retention",
+      "candidates": [
+        {
+          "id": "fl-1st-dca-retention-lewis-jr",
+          "name": "Joseph Lewis Jr.",
+          "party": "Nonpartisan",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        },
+        {
+          "id": "fl-1st-dca-retention-nordby",
+          "name": "Rachel Nordby",
+          "party": "Nonpartisan",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        },
+        {
+          "id": "fl-1st-dca-retention-osterhaus",
+          "name": "Tim Osterhaus",
+          "party": "Nonpartisan",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        },
+        {
+          "id": "fl-1st-dca-retention-roberts",
+          "name": "Clay Roberts",
+          "party": "Nonpartisan",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        },
+        {
+          "id": "fl-1st-dca-retention-treadwell",
+          "name": "Raymond Treadwell",
+          "party": "Nonpartisan",
+          "source": {
+            "title": "Florida Division of Elections \u2014 2026 General Election candidate list",
+            "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN"
+          }
+        }
+      ]
+    },
+    {
+      "id": "fl-amendment-1",
+      "title": "Budget Stabilization Fund",
+      "level": "state",
+      "description": "Statewide constitutional amendment proposed for the 2026 General Election ballot.",
+      "kind": "measure",
+      "measureSummary": "Raises the cap on the budget stabilization fund from 10% to 25% of general revenue collections and sets required annual transfers, with withdrawals allowed for critical state needs.",
+      "candidates": []
+    },
+    {
+      "id": "fl-amendment-2",
+      "title": "Exemption of Tangible Personal Property on Agricultural Land from Taxation",
+      "level": "state",
+      "description": "Statewide constitutional amendment proposed for the 2026 General Election ballot.",
+      "kind": "measure",
+      "measureSummary": "Exempts movable equipment and similar tangible personal property habitually on agricultural land from ad valorem taxation, starting with tax years beginning January 1, 2027.",
+      "candidates": []
+    },
+    {
+      "id": "fl-amendment-3",
+      "title": "Increased Homestead Exemption; Lower Cap on Increases in Non-Homestead Property Assessments",
+      "level": "state",
+      "description": "Statewide constitutional amendment proposed for the 2026 General Election ballot.",
+      "kind": "measure",
+      "measureSummary": "Raises the homestead exemption for non-school taxes to $150,000 in 2027 and $250,000 in 2028 (inflation-adjusted after), lowers the non-homestead assessment increase cap from 10% to 5%, and limits how local governments use property tax revenue, effective January 1, 2027.",
+      "candidates": []
+    }
+  ]
+}

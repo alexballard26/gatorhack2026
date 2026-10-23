@@ -41,6 +41,8 @@ export interface DistrictBoundaries {
 export interface DistrictsResponse {
   location: VoterLocation;
   boundaries: DistrictBoundaries;
+  /** Which boundary vintage was drawn, e.g. "120th Congressional Districts". */
+  boundaryVintage?: string;
 }
 
 export type RaceLevel = "federal" | "state" | "county" | "municipal" | "judicial" | "school" | "special-district";
@@ -85,6 +87,8 @@ export interface BallotResponse {
   provenance: BallotProvenance;
   /** Official sample-ballot or elections-office link the voter should verify against. */
   verifyUrl?: string;
+  /** Coverage caveats to show the voter (from SeedBallot.notes). */
+  notes?: string;
   generatedAt: string; // ISO timestamp
 }
 
@@ -152,6 +156,8 @@ export interface SeedBallot {
   /** Official pages used to build this file. */
   sources: Source[];
   compiledAt: string;
+  /** Coverage caveats shown to the voter, e.g. "county contests not yet included". */
+  notes?: string;
   races: SeedRace[];
 }
 
