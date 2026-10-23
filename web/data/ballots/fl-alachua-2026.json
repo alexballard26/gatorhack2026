@@ -19,7 +19,7 @@
     }
   ],
   "compiledAt": "2026-10-23T22:08:48+00:00",
-  "notes": "Federal, state, legislative and judicial contests from the official Florida Division of Elections export (status = Qualified). Unopposed candidates (e.g. State House 21, circuit judges) do not appear on Florida ballots and are omitted. County and municipal contests are filed with the county Supervisor of Elections and are not yet included.",
+  "notes": "Federal, state, legislative and judicial races come from the Florida Division of Elections' official list of qualified candidates. Candidates running unopposed don't appear on Florida ballots. County and city races aren't included yet \u2014 check your official sample ballot for those.",
   "races": [
     {
       "id": "fl-us-senate",

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- untyped Census/TIGERweb JSON */
 import type { DistrictBoundaries, DistrictsResponse, VoterLocation } from "../types";
 
 const GEOCODER = "https://geocoding.geo.census.gov/geocoder/geographies";

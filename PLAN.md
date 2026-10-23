@@ -36,11 +36,11 @@ Targets: Best Use of Gemini, Best AI Hack, Best Social Impact, main awards.
 
 | # | Task | Owner | Status |
 |---|------|-------|--------|
-| 1 | Scaffold Next.js app + shared types | Opus | in progress |
-| 2 | Geo: address → districts, boundary GeoJSON, `/api/districts` | Sonnet worker | pending |
-| 3 | AI backend: Gemini client, cache, spend guard, ballot/candidate/research/ask routes | Sonnet worker | pending |
-| 4 | UI: landing, map, ballot view, race view, research progress | Sonnet worker | pending |
-| 5 | Alachua 2026 general ballot from official sources → seed JSON | Haiku assistant | pending |
+| 1 | Scaffold Next.js app + shared types | Opus | done |
+| 2 | Geo: address → districts, boundary GeoJSON, `/api/districts` | Sonnet worker | done, verified |
+| 3 | AI backend: Gemini client, cache, spend guard, ballot/candidate/research/ask routes | Sonnet worker | in progress |
+| 4 | UI: landing, map, ballot view, race view, research progress | Sonnet worker | in progress |
+| 5 | Alachua 2026 general ballot from official sources → seed JSON | Haiku → Opus | done: 16 races / 43 candidates from FL DOS export; **county + municipal races missing** (county site blocks bots) |
 | 6 | Integration + end-to-end test | Opus + worker | pending |
 | 7 | Showcase Deep Research runs (≤ budget) | Opus | pending |
 
