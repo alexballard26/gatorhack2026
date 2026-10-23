@@ -41,31 +41,63 @@ const textOf = (v: unknown): string => {
   return "";
 };
 
-/** Pull report text, citations and thought summaries out of an Interaction resource (defensive: shape is preview). */
+/**
+ * Pull report text, citations, charts and thought summaries out of an Interaction resource.
+ * Observed shape (deep-research-preview-04-2026): one `thought` step whose `summary` is a list of
+ * text items; then several `model_output` steps whose content blocks are text (with `[cite: 1, 2]`
+ * markers) or `image` (base64 PNG chart). The last text block ends with a numbered
+ * "**Sources:**" list — `N. [domain](url)` — that the cite numbers refer to.
+ */
 export function parseInteraction(it: Json) {
   const steps: Json[] = Array.isArray(it.steps) ? it.steps : [];
   const thoughts: string[] = [];
-  const sources: Source[] = [];
-  const addSource = (a: Json) => {
-    if (a?.url && !sources.some((s) => s.url === a.url)) sources.push({ title: a.title || a.url, url: a.url });
-  };
-  let report = "";
+  const texts: string[] = [];
+  const images: string[] = [];
+  const annotated: Source[] = [];
   for (const s of steps) {
     if (/thought/i.test(String(s.type))) {
-      const t = textOf(s.summary ?? s.content ?? s).trim();
-      if (t) thoughts.push(t);
+      const items = Array.isArray(s.summary) ? s.summary : [s.summary ?? s.content ?? s];
+      for (const item of items) {
+        const t = textOf(item).trim();
+        if (t) thoughts.push(t);
+      }
+    }
+    if (s.type !== "model_output" || !Array.isArray(s.content)) continue;
+    for (const b of s.content as Json[]) {
+      if (b.type === "image" && typeof b.data === "string") images.push(`data:${b.mime_type || "image/png"};base64,${b.data}`);
+      else if (typeof b.text === "string") {
+        texts.push(b.text);
+        for (const a of b.annotations ?? []) {
+          if (a?.url && !annotated.some((x) => x.url === a.url)) annotated.push({ title: a.title || hostOf(a.url), url: a.url });
+        }
+      }
     }
   }
-  const outputs = [...steps].reverse().find((s) => s.type === "model_output");
-  const blocks: Json[] = Array.isArray(outputs?.content) ? outputs!.content : [];
-  for (const b of blocks) {
-    if (b.type === "text" || typeof b.text === "string") {
-      report += b.text ?? "";
-      for (const a of b.annotations ?? []) if (a?.type === "url_citation" || a?.url) addSource(a);
-    }
-  }
+  let report = texts.join("\n\n");
   if (!report) report = textOf(it.output_text ?? it.outputs);
-  return { report: report.trim(), sources, thoughts };
+
+  // Numbered source list → sources[n-1], then drop it from the body (the UI renders sources itself).
+  const sources: Source[] = [];
+  const listStart = report.search(/\n\s*(\*\*)?Sources:?(\*\*)?:?\s*\n/i);
+  if (listStart >= 0) {
+    for (const m of report.slice(listStart).matchAll(/^\s*(\d+)\.\s*\[([^\]]*)\]\((https?:\/\/[^)\s]+)\)/gm)) {
+      sources[Number(m[1]) - 1] = { title: m[2] || hostOf(m[3]), url: m[3] };
+    }
+    if (sources.length) report = report.slice(0, listStart);
+  }
+  for (let i = 0; i < sources.length; i++) sources[i] ??= { title: "Source unavailable", url: "" };
+  // `[cite: 1, 2]` → `[1, 2]`, the marker the UI turns into source chips.
+  report = report.replace(/\[cite:\s*([\d,\s]+)\]/g, (_, n: string) => `[${n.trim()}]`);
+
+  return { report: report.trim(), sources: sources.length ? sources : annotated, thoughts, images };
+}
+
+function hostOf(url: string) {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return url;
+  }
 }
 
 const ACTIVE: ResearchJob["status"][] = ["queued", "running", "completed"];
@@ -89,12 +121,12 @@ export async function pollResearch(raceId: string): Promise<ResearchJob> {
 
   return once(`research-poll:${raceId}`, async () => {
     const it = await api("GET", `${BASE}/${encodeURIComponent(job.interactionId!)}`);
-    const { report, sources, thoughts } = parseInteraction(it);
+    const { report, sources, thoughts, images } = parseInteraction(it);
     const progress = [...new Set([...(job.progress ?? []), ...thoughts])];
     let next: ResearchJob = { ...job, progress };
     const st = String(it.status);
     if (st === "completed") {
-      next = { ...next, status: "completed", completedAt: new Date().toISOString(), reportMarkdown: report, sources, estimatedCostUsd: DEEP_RESEARCH_ESTIMATE };
+      next = { ...next, status: "completed", completedAt: new Date().toISOString(), reportMarkdown: report, sources, images, estimatedCostUsd: DEEP_RESEARCH_ESTIMATE };
       if (!report) next.progress = [...progress, "Completed, but no report text was returned"];
     } else if (["failed", "cancelled", "incomplete"].includes(st)) {
       next = { ...next, status: "failed", error: (it.errors ?? []).map((e: Json) => e.message).join("; ") || `Interaction ${st}` };

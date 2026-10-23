@@ -133,6 +133,8 @@ export interface ResearchJob {
   /** Markdown report with inline citation markers. */
   reportMarkdown?: string;
   sources?: Source[];
+  /** Charts the agent generated, as data: URLs (e.g. data:image/png;base64,...). */
+  images?: string[];
   /** Progress notes / thought summaries streamed from the agent, newest last. */
   progress?: string[];
   error?: string;
