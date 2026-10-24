@@ -60,7 +60,7 @@ export function Landing() {
       <label htmlFor={`f-${id}`} className="mb-1 block text-sm font-medium text-slate-800">
         {label}
       </label>
-      <input id={`f-${id}`} className={inputCls} placeholder={ph} value={m[id]} onChange={(e) => setM({ ...m, [id]: e.target.value })} />
+      <input id={`f-${id}`} className={inputCls} placeholder={ph ? `e.g. ${ph}` : undefined} value={m[id]} onChange={(e) => setM({ ...m, [id]: e.target.value })} />
     </div>
   );
 

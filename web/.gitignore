@@ -44,3 +44,6 @@ next-env.d.ts
 /data/cache/*
 !/data/cache/showcase/
 /data/spend.json
+
+# Per-agent dev build dirs
+/.next-*/

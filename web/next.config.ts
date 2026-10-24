@@ -8,7 +8,9 @@ import { loadEnvConfig } from "@next/env";
 loadEnvConfig(path.resolve(process.cwd(), ".."), process.env.NODE_ENV !== "production", undefined, true);
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Extra dev servers (e.g. agents testing on other ports) must set NEXT_DIST_DIR to their own folder:
+  // two servers sharing .next corrupt each other's chunks and the page stops hydrating.
+  distDir: process.env.NEXT_DIST_DIR || ".next",
 };
 
 export default nextConfig;

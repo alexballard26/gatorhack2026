@@ -24,6 +24,7 @@ AI hackathon project. The challenge brief arrives on hackathon day and goes in `
 - Brief every agent as if it has no context: goal, files, constraints, definition of done.
 - Run independent tasks in parallel; sequence tasks that depend on each other.
 - Opus verifies every result (runs it, reads the diff) before marking a task done in `PLAN.md`.
+- The main dev server runs on port 3000. Any extra dev server an agent starts must use its own build dir: `NEXT_DIST_DIR=.next-<port> npx next dev -p <port>`. Two servers sharing `web/.next` corrupt each other and the app stops responding to clicks. Never `pkill -f next` broadly; never run `next build` while port 3000 is up. Never POST to `/api/research` without the orchestrator's go-ahead (it costs ~$3).
 
 ## Hackathon priorities
 1. A working end-to-end demo early; polish later.
