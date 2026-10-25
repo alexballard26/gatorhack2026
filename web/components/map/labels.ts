@@ -44,6 +44,12 @@ export interface StateLabel {
 /** Small northeastern states that get a leader line into the Atlantic when even the postal code will not fit inside. */
 const LEADER = new Set(["VT", "NH", "MA", "RI", "CT", "NJ", "DE", "MD", "DC"]);
 
+/** States whose code goes in the Atlantic leader column even when it would technically fit inside (thin shapes read better as callouts). */
+const FORCE_LEADER = new Set(["MD"]);
+
+/** Hand-placed callouts [lng, lat] for states too narrow to label inside, drawn with a short leader line from the state. */
+const CALLOUTS: Record<string, [number, number]> = { VT: [-73.35, 46.05], NH: [-71.3, 46.55] };
+
 const sizeOf = (b: Bounds, k: number) => ({ w: (b[1][0] - b[0][0]) * k, h: (b[1][1] - b[0][1]) * k });
 
 /** National stage: postal codes everywhere (for consistency), leader lines for the tiny Northeast states. */
@@ -55,7 +61,13 @@ export function nationLabels(view: View, w: number, h: number, project: (lng: nu
     const [x, y] = toScreen(view, s.anchor);
     const { w: bw, h: bh } = sizeOf(s.bounds, view.k);
     const codeW = monoWidth(s.abbr, codeSize, 0.5);
-    if (s.abbr === "DC") {
+    const callout = CALLOUTS[s.abbr] && project(...CALLOUTS[s.abbr]);
+    if (callout) {
+      const [cx, cy] = toScreen(view, callout);
+      out.push({ abbr: s.abbr, text: s.abbr, x: cx, y: cy - codeSize * 0.6, size: codeSize, mono: true, anchor: "middle", leader: [x, y, cx, cy] });
+      continue;
+    }
+    if (s.abbr === "DC" || FORCE_LEADER.has(s.abbr)) {
       pending.push({ abbr: s.abbr, ax: x, ay: y, text: s.abbr });
       continue;
     }
