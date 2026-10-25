@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<!--
+BALLOTSCOUT - DIRECTION A: "THE EDITORIAL VOTER GUIDE"
+
+DESIGN TOKENS
+  Fonts   : Display  "Fraunces" (opsz/SOFT variable, 600-900)   | Body "Newsreader" (400-700, italic) | Labels "Newsreader" caps, tracked
+  Color   : --paper #F3EEE1 (newsprint)  --paper-2 #EAE3D1 (shaded stock)  --ink #17140F  --ink-2 #4A4538 (secondary, 8.0:1 on paper)
+            --rule #17140F (hairlines at 1px, heavy 3px)  --accent #1E4B38 (Gator-pine green, 8.6:1 on paper)  --accent-ink #F3EEE1
+            --ochre #7A5200 (annotation only, 6.2:1)  -- No red, no blue, anywhere.
+  Spacing : 4 / 8 / 12 / 16 / 24 / 32 / 48 / 72 px  (--s1..--s8); measure 66ch; page max 1180px; 12-col editorial grid
+  Radius  : 0. Everything is ruled, not boxed.
+
+SIGNATURE ELEMENTS
+  1. Masthead          - Datelined broadsheet nameplate with double rule ("THE BALLOT / Alachua County Edition / Nov 3, 2026").
+  2. Countdown Ticker  - Edition-style "days remaining" figure set in giant Fraunces numerals with a small-caps legend.
+  3. Footnote Citations - Superscript numerals linking to a numbered, ruled "Notes & Sources" list; same system on profiles and the report.
+  4. Pull-Quote Cards  - Large italic serif pull quotes with a heavy top rule and green marker, used for key report findings.
+  5. Ruled Ballot Ledger - Races as a dotted-leader ledger grouped by level (Federal > State > Judicial > Measures); no cards.
+  6. Dispatch Timeline - Deep Research progress as a wire-service dispatch log with timestamps and a running cursor.
+  7. Drop-Cap Feature Body - Long-form report opening with a drop cap, column text, and a broadsheet comparison table.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Ballot - Alachua County Edition - BallotScout</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,500..900,0..100;1,9..144,400..700,0..100&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3EEE1; --paper-2:#EAE3D1; --ink:#17140F; --ink-2:#4A4538; --accent:#1E4B38; --accent-ink:#F3EEE1; --ochre:#7A5200;
+  --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;--s8:72px;
+  --display:"Fraunces","Georgia",serif; --body:"Newsreader","Georgia",serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.55;font-optical-sizing:auto;overflow-x:hidden;
+  background-image:radial-gradient(rgba(23,20,15,.045) 1px,transparent 1px);background-size:5px 5px}
+a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:3px}
+a:hover{background:var(--accent);color:var(--accent-ink);text-decoration:none}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;background:transparent}
+button{font:inherit;color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:0 var(--s5)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:-999px;top:0;background:var(--ink);color:var(--paper);padding:var(--s2) var(--s4);z-index:50}
+.skip:focus{left:0}
+
+/* type */
+.kicker{font:700 12.5px/1.2 var(--body);letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin:0 0 var(--s2)}
+.smallcaps{font-variant-caps:all-small-caps;letter-spacing:.09em;font-weight:600}
+h1,h2,h3,h4{font-family:var(--display);font-weight:800;line-height:1.05;margin:0;letter-spacing:-.015em;font-variation-settings:"SOFT" 30}
+.h-xl{font-size:clamp(2.7rem,7.2vw,5.8rem);font-weight:900;letter-spacing:-.03em}
+.h-l{font-size:clamp(1.9rem,4vw,3rem)}
+.h-m{font-size:clamp(1.35rem,2.4vw,1.75rem);font-weight:700}
+.deck{font-size:clamp(1.15rem,2vw,1.4rem);line-height:1.4;color:var(--ink-2);font-style:italic;max-width:46ch}
+.byline{font:600 12.5px/1.3 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
+.rule-2{border:0;border-top:3px solid var(--ink);border-bottom:1px solid var(--ink);height:4px;margin:0}
+.rule-1{border:0;border-top:1px solid var(--ink);margin:0}
+
+/* masthead */
+.masthead{padding-top:var(--s4)}
+.mast-top{display:flex;justify-content:space-between;gap:var(--s4);font:600 12px/1.3 var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);padding-bottom:var(--s2);flex-wrap:wrap}
+.nameplate{text-align:center;padding:var(--s4) 0 var(--s3)}
+.nameplate .title{font-family:var(--display);font-weight:900;font-size:clamp(3rem,11vw,7.5rem);line-height:.9;letter-spacing:-.035em;margin:0;font-variation-settings:"SOFT" 100,"opsz" 144}
+.nameplate .title span{font-style:italic;font-weight:500;font-size:.38em;letter-spacing:0;vertical-align:.55em;margin:0 .15em}
+.mast-sub{display:flex;justify-content:space-between;align-items:center;gap:var(--s3);padding:var(--s2) 0;font:700 12.5px/1.3 var(--body);letter-spacing:.16em;text-transform:uppercase;flex-wrap:wrap;justify-content:center;text-align:center}
+.mast-sub i{width:5px;height:5px;background:var(--ink);transform:rotate(45deg);display:inline-block}
+
+/* switcher */
+.switcher{position:sticky;top:0;z-index:20;background:var(--paper);border-bottom:1px solid var(--ink)}
+.switcher .wrap{display:flex;gap:0;align-items:stretch}
+.switcher button{flex:1 1 0;background:none;border:0;border-right:1px solid var(--ink);padding:var(--s3) var(--s2);font:700 13px/1.2 var(--body);letter-spacing:.14em;text-transform:uppercase;cursor:pointer;min-height:48px}
+.switcher button:first-child{border-left:1px solid var(--ink)}
+.switcher button:hover{background:var(--paper-2)}
+.switcher button[aria-selected="true"]{background:var(--ink);color:var(--paper)}
+.switcher .num{font-family:var(--display);font-style:italic;font-weight:500;margin-right:.4em;letter-spacing:0}
+.screen[hidden]{display:none}
+.screen{padding-bottom:var(--s8)}
+
+/* HOME */
+.lede{display:grid;grid-template-columns:1.55fr 1fr;gap:var(--s6);padding:var(--s7) 0 var(--s6)}
+.lede .col-r{border-left:1px solid var(--ink);padding-left:var(--s6)}
+.lede h1{margin:var(--s3) 0 var(--s5)}
+.lede h1 em{font-style:italic;font-weight:500;color:var(--accent)}
+.countdown{text-align:left}
+.countdown .big{font-family:var(--display);font-weight:900;font-size:clamp(5rem,12vw,8.5rem);line-height:.85;letter-spacing:-.05em;margin:var(--s2) 0;font-variation-settings:"SOFT" 100;font-feature-settings:"lnum"}
+.countdown .legend{font:600 13px/1.4 var(--body);letter-spacing:.12em;text-transform:uppercase}
+.cd-parts{display:flex;gap:0;margin-top:var(--s4);border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)}
+.cd-parts div{flex:1;padding:var(--s2) var(--s3);border-right:1px solid var(--ink)}
+.cd-parts div:last-child{border-right:0}
+.cd-parts b{display:block;font:800 1.7rem/1 var(--display);font-feature-settings:"lnum","tnum"}
+.cd-parts span{font:600 11px/1 var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+.countdown .note{font-size:15px;color:var(--ink-2);margin:var(--s3) 0 0}
+
+.start{border-top:3px solid var(--ink);padding-top:var(--s5)}
+.start-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:var(--s3);margin-bottom:var(--s5)}
+.ways{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--ink)}
+.way{padding:var(--s5);border-right:1px solid var(--ink);display:flex;flex-direction:column;gap:var(--s3);background:var(--paper)}
+.way:last-child{border-right:0}
+.way .no{font:italic 500 3.2rem/0.9 var(--display);color:var(--accent)}
+.way h3{font-size:1.5rem}
+.way p{margin:0;color:var(--ink-2);font-size:16.5px}
+.field label{display:block;font:700 12px/1.2 var(--body);letter-spacing:.14em;text-transform:uppercase;margin-bottom:var(--s1)}
+.field input,.field select,#q{width:100%;font:inherit;padding:11px 12px;background:#FBF8F0;border:1px solid var(--ink);border-radius:0;color:var(--ink);min-height:46px}
+.field input::placeholder,.ask input::placeholder{color:#6b6556}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);background:var(--ink);color:var(--paper);border:1px solid var(--ink);padding:11px 18px;min-height:46px;font:700 13px/1 var(--body);letter-spacing:.14em;text-transform:uppercase;cursor:pointer;text-decoration:none;border-radius:0}
+.btn:hover{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.ghost:hover{background:var(--ink);color:var(--paper)}
+.minimap{width:100%;height:auto;display:block;border:1px solid var(--ink);background:var(--paper-2);cursor:crosshair}
+.minimap path{fill:none;stroke:var(--ink);stroke-width:1}
+.way .btn{margin-top:auto;align-self:flex-start}
+
+.how{margin-top:var(--s8)}
+.how-grid{display:grid;grid-template-columns:repeat(3,1fr);column-gap:var(--s6);margin-top:var(--s5);border-top:1px solid var(--ink);padding-top:var(--s5)}
+.how-grid article{border-left:1px solid var(--ink);padding-left:var(--s4)}
+.how-grid article:first-child{border-left:0;padding-left:0}
+.how-grid .n{font:italic 500 1.1rem var(--display);color:var(--accent)}
+.how-grid h3{font-size:1.4rem;margin:var(--s1) 0 var(--s2)}
+.how-grid p{margin:0;font-size:16.5px;color:var(--ink-2)}
+.principles{margin-top:var(--s7);display:grid;grid-template-columns:1fr 2fr;gap:var(--s6);border-top:3px solid var(--ink);padding-top:var(--s5)}
+.principles ul{margin:0;padding:0;list-style:none;columns:2;column-gap:var(--s6)}
+.principles li{padding:var(--s2) 0;border-bottom:1px dotted var(--ink-2);break-inside:avoid;font-size:16.5px}
+.principles li b{font-family:var(--display);font-weight:700}
+
+/* BALLOT */
+.page-head{padding:var(--s7) 0 var(--s5)}
+.page-head h1{margin:var(--s2) 0 var(--s4)}
+.chips{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s4)}
+.chip{border:1px solid var(--ink);padding:4px 10px;font:700 12px/1.3 var(--body);letter-spacing:.12em;text-transform:uppercase;background:var(--paper)}
+.chip.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.addr{font-family:var(--display);font-style:italic;font-weight:500;font-size:1.25rem}
+.ballot-grid{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:var(--s7);align-items:start}
+.sidebar{position:sticky;top:64px;display:flex;flex-direction:column;gap:var(--s5)}
+.figure{margin:0}
+.figure figcaption{font-size:14px;color:var(--ink-2);padding-top:var(--s2);border-top:1px solid var(--ink);margin-top:var(--s2)}
+.figure figcaption b{font:700 11.5px var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--ink)}
+.map{width:100%;height:auto;display:block;border:1px solid var(--ink);background:#F8F4E8}
+.map text{font-family:var(--body)}
+.provenance{border:1px solid var(--ink);border-top:4px solid var(--accent);padding:var(--s4);background:#FBF8F0}
+.provenance h2{font-size:1.2rem;display:flex;gap:var(--s2);align-items:flex-start}
+.provenance .seal{flex:none;width:28px;height:28px;border-radius:50%;border:2px solid var(--accent);display:grid;place-items:center;color:var(--accent);margin-top:1px}
+.provenance p{margin:var(--s2) 0 var(--s3);font-size:15.5px;color:var(--ink-2)}
+
+.level{margin-bottom:var(--s7)}
+.level-head{display:flex;align-items:baseline;gap:var(--s3);border-top:3px solid var(--ink);border-bottom:1px solid var(--ink);padding:var(--s2) 0}
+.level-head h2{font-size:1.9rem}
+.level-head .ct{margin-left:auto;font:700 12px var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+.level-head .lno{font:italic 500 1.2rem var(--display);color:var(--accent)}
+.race{padding:var(--s5) 0;border-bottom:1px solid var(--ink)}
+.race-top{display:flex;justify-content:space-between;gap:var(--s4);align-items:baseline;flex-wrap:wrap}
+.race h3{font-size:1.45rem;font-weight:700}
+.race h3 a{color:var(--ink);text-decoration:none;background-image:linear-gradient(var(--accent),var(--accent));background-size:0 2px;background-repeat:no-repeat;background-position:0 100%;transition:background-size .2s}
+.race h3 a:hover{background-size:100% 2px;background-color:transparent;color:var(--ink)}
+.race .desc{margin:var(--s1) 0 var(--s3);color:var(--ink-2);font-size:16px;max-width:60ch}
+.more{font:700 12px var(--body);letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
+.cands{list-style:none;margin:0;padding:0;columns:2;column-gap:var(--s6)}
+.cands li{display:flex;align-items:baseline;gap:var(--s2);break-inside:avoid;padding:3px 0;font-size:17px}
+.cands .nm{font-weight:600}
+.cands .lead{flex:1;border-bottom:1px dotted var(--ink-2);min-width:12px;transform:translateY(-4px)}
+.cands .pt{font:600 12px var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);text-align:right}
+.measure-note{font-style:italic;color:var(--ink-2);font-size:16px;margin:0}
+
+/* RACE */
+.crumbs{font:600 12px var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);padding-top:var(--s5)}
+.crumbs a{color:var(--ink-2)}
+.cand-row{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--ink);margin:var(--s5) 0 var(--s7)}
+.cand{padding:var(--s5);border-right:1px solid var(--ink);display:flex;flex-direction:column;gap:var(--s2);text-align:left;background:var(--paper);border-top:0;border-left:0;border-bottom:0;cursor:pointer;border-radius:0}
+.cand:last-child{border-right:0}
+.cand:hover{background:var(--paper-2)}
+.cand[aria-expanded="true"]{background:var(--ink);color:var(--paper)}
+.cand[aria-expanded="true"] .pt,.cand[aria-expanded="true"] .st{color:#D9D2BE}
+.cand .ini{font:italic 500 3rem/1 var(--display);color:var(--accent)}
+.cand[aria-expanded="true"] .ini{color:#CBE0D2}
+.cand .nm{font:800 1.5rem/1.1 var(--display)}
+.cand .pt{font:700 12px var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+.cand .st{font-size:15px;color:var(--ink-2)}
+
+.feature{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:var(--s7);align-items:start}
+.profile h2{font-size:clamp(2rem,4.5vw,3.4rem);font-weight:900}
+.profile .summary{margin:var(--s4) 0;font-size:19px}
+.dropcap::first-letter{font-family:var(--display);font-weight:900;float:left;font-size:4.7em;line-height:.78;padding:6px 10px 0 0;color:var(--accent)}
+.dl{margin:var(--s5) 0 0}
+.dl-group{border-top:1px solid var(--ink);padding:var(--s4) 0}
+.dl-group>h3{font:700 12.5px var(--body);letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:var(--s3);font-family:var(--body)}
+.item{display:grid;grid-template-columns:170px 1fr;gap:var(--s4);padding:var(--s2) 0}
+.item dt{font-family:var(--display);font-weight:700;font-size:1.02rem;line-height:1.25}
+.item dd{margin:0;font-size:17px}
+sup.fn{font:700 .72em/1 var(--body);vertical-align:super;margin-left:1px;white-space:nowrap}
+sup.fn a{text-decoration:none;color:var(--accent);padding:0 1px}
+sup.fn a:hover{color:var(--accent-ink)}
+.notes{margin:var(--s5) 0 0;padding:0;list-style:none;counter-reset:n;border-top:1px solid var(--ink)}
+.notes li{counter-increment:n;display:grid;grid-template-columns:2.2em 1fr;padding:6px 0;border-bottom:1px dotted var(--ink-2);font-size:15.5px;scroll-margin-top:70px}
+.notes li::before{content:counter(n)".";font:italic 700 1rem var(--display);color:var(--accent)}
+.notes li:target{background:#E3E8D6}
+.notes .dom{color:var(--ink-2)}
+.aside-col{position:sticky;top:64px;display:flex;flex-direction:column;gap:var(--s5)}
+.pull{margin:0;border-top:5px solid var(--accent);padding-top:var(--s3)}
+.pull p{font:italic 500 1.55rem/1.22 var(--display);margin:0}
+.pull cite{display:block;margin-top:var(--s3);font:600 12px var(--body);letter-spacing:.14em;text-transform:uppercase;font-style:normal;color:var(--ink-2)}
+.factbox{border:1px solid var(--ink);padding:var(--s4);background:#FBF8F0}
+.factbox h4{font:700 12px var(--body);letter-spacing:.16em;text-transform:uppercase;margin-bottom:var(--s3)}
+.factbox dl{margin:0}
+.factbox dt{font:600 11.5px var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);margin-top:var(--s2)}
+.factbox dd{margin:0;font:800 1.3rem var(--display)}
+
+.research{margin-top:var(--s8);border-top:3px solid var(--ink)}
+.research-head{display:flex;justify-content:space-between;align-items:flex-end;gap:var(--s5);flex-wrap:wrap;padding:var(--s5) 0 var(--s4)}
+.badge{display:inline-flex;gap:var(--s2);align-items:center;border:1px solid var(--ink);padding:3px 10px;font:700 11.5px var(--body);letter-spacing:.14em;text-transform:uppercase}
+.badge::before{content:"";width:7px;height:7px;background:var(--ochre);display:inline-block;transform:rotate(45deg)}
+.research-grid{display:grid;grid-template-columns:310px minmax(0,1fr);gap:var(--s7);border-top:1px solid var(--ink);padding-top:var(--s5)}
+.dispatch{position:sticky;top:64px;align-self:start}
+.dispatch h3{font:700 12.5px var(--body);letter-spacing:.16em;text-transform:uppercase;margin-bottom:var(--s3);font-family:var(--body);display:flex;justify-content:space-between;align-items:center;gap:var(--s2)}
+.steps{list-style:none;margin:0;padding:0;border-left:1px solid var(--ink)}
+.steps li{position:relative;padding:0 0 var(--s4) var(--s4)}
+.steps li::before{content:"";position:absolute;left:-5px;top:7px;width:9px;height:9px;background:var(--paper);border:1px solid var(--ink)}
+.steps li.done::before{background:var(--accent);border-color:var(--accent)}
+.steps li.live::before{background:var(--ochre);border-color:var(--ochre);animation:blink 1s steps(2) infinite}
+.steps li.wait{opacity:.55}
+.steps time{display:block;font:600 11px var(--body);letter-spacing:.14em;color:var(--ink-2);text-transform:uppercase}
+.steps b{font-family:var(--display);font-weight:700;font-size:1.05rem;line-height:1.2;display:block}
+.steps p{margin:2px 0 0;font-size:14.5px;color:var(--ink-2);line-height:1.4}
+.steps li:not(.open) p{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.steps li.live b::after{content:"_";animation:blink .8s steps(2) infinite}
+.link-btn{background:none;border:0;padding:0;font:700 11.5px var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+@keyframes blink{50%{opacity:.2}}
+
+.report h3.sec{font-size:1.5rem;margin:var(--s6) 0 var(--s3)}
+.report .lead-in{font-size:19.5px}
+.report p{margin:0 0 var(--s4)}
+.cols{columns:2;column-gap:var(--s6);column-rule:1px solid var(--ink)}
+.cols p{text-align:justify;hyphens:auto}
+.tablewrap{overflow-x:auto;border-top:3px solid var(--ink);border-bottom:1px solid var(--ink);margin:var(--s4) 0;-webkit-overflow-scrolling:touch}
+.tablewrap:focus-visible{outline-offset:-3px}
+table{border-collapse:collapse;width:100%;min-width:720px;font-size:15px;line-height:1.42}
+caption{caption-side:top;text-align:left;font:italic 500 1.05rem var(--display);padding:var(--s3) 0;color:var(--ink-2)}
+th,td{text-align:left;vertical-align:top;padding:var(--s3) var(--s3);border-bottom:1px solid #8c8470}
+thead th{font:700 12.5px var(--body);letter-spacing:.12em;text-transform:uppercase;border-bottom:2px solid var(--ink);background:var(--paper-2)}
+thead th small{display:block;font-weight:600;color:var(--ink-2);letter-spacing:.1em}
+tbody th{font:700 1.02rem/1.2 var(--display);width:15%;background:var(--paper)}
+tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}
+td+td,th+th,th+td{border-left:1px solid #b9b199}
+.scrollhint{display:none;font:600 11.5px var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
+.unverified{border:1px solid var(--ink);padding:var(--s4);background:#FBF8F0}
+.disclaimer{display:flex;gap:var(--s3);align-items:flex-start;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:var(--s3) 0;margin:var(--s5) 0;font-size:15.5px}
+.disclaimer b{font:700 11.5px var(--body);letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;padding-top:3px}
+.ask{margin-top:var(--s8);border-top:3px solid var(--ink);padding-top:var(--s5);display:grid;grid-template-columns:1fr 1.4fr;gap:var(--s7)}
+#askf{display:flex;gap:var(--s2);flex-wrap:wrap}
+#askf .grow{flex:1 1 260px}
+.ask label{font:700 12px var(--body);letter-spacing:.14em;text-transform:uppercase;display:block;margin-bottom:var(--s1);width:100%}
+.suggest{display:flex;flex-wrap:wrap;gap:var(--s2);margin:var(--s3) 0 0;padding:0;list-style:none}
+.suggest button{background:none;border:1px solid var(--ink);padding:5px 10px;font:italic 500 15px var(--body);cursor:pointer;border-radius:0}
+.suggest button:hover{background:var(--ink);color:var(--paper)}
+.answer{margin-top:var(--s4);border-left:4px solid var(--accent);padding-left:var(--s4)}
+.answer[hidden]{display:none}
+
+footer{border-top:3px solid var(--ink);margin-top:var(--s7);padding:var(--s5) 0 var(--s7);font-size:14.5px;color:var(--ink-2)}
+footer .wrap{display:flex;justify-content:space-between;gap:var(--s5);flex-wrap:wrap}
+
+@media (max-width:980px){
+  .lede{grid-template-columns:1fr}
+  .lede .col-r{border-left:0;padding-left:0;border-top:1px solid var(--ink);padding-top:var(--s5)}
+  .ways{grid-template-columns:1fr}.way{border-right:0;border-bottom:1px solid var(--ink)}.way:last-child{border-bottom:0}
+  .how-grid{grid-template-columns:1fr;row-gap:var(--s5)}.how-grid article{border-left:0;padding-left:0;border-top:1px solid var(--ink);padding-top:var(--s4)}.how-grid article:first-child{border-top:0;padding-top:0}
+  .principles{grid-template-columns:1fr}
+  .ballot-grid,.feature,.research-grid,.ask{grid-template-columns:minmax(0,1fr)}
+  .sidebar,.aside-col,.dispatch{position:static}
+  .ballot-grid .sidebar{order:-1}
+  .cand-row{grid-template-columns:1fr}.cand{border-right:0;border-bottom:1px solid var(--ink)}.cand:last-child{border-bottom:0}
+  .scrollhint{display:block}
+}
+@media (max-width:620px){
+  body{font-size:17px}
+  .wrap{padding:0 16px}
+  .cands,.principles ul,.cols{columns:1}
+  .item{grid-template-columns:1fr;gap:2px}
+  .switcher button{font-size:11px;letter-spacing:.08em;padding:var(--s2) 2px}
+  .switcher .num{display:none}
+  .mast-top span:last-child{display:none}
+  .mast-sub{font-size:10.5px;letter-spacing:.1em}
+  .level-head h2{font-size:1.5rem}
+  .disclaimer{flex-direction:column;gap:2px}
+  .cd-parts b{font-size:1.35rem}
+  .cols p{text-align:left}
+  .lede{padding-top:var(--s6)}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+@media print{.switcher{display:none}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead wrap">
+  <div class="mast-top"><span>Vol. I &middot; No. 1</span><span>Nonpartisan &middot; Free to read &middot; Sources cited</span><span>Gainesville, Florida</span></div>
+  <hr class="rule-2">
+  <div class="nameplate"><p class="title" role="img" aria-label="The Ballot">The<span>&amp;</span>Ballot</p></div>
+  <hr class="rule-1">
+  <div class="mast-sub"><span>Alachua County Edition</span><i aria-hidden="true"></i><span>General Election &middot; Tuesday, Nov 3, 2026</span><i aria-hidden="true"></i><span>A BallotScout publication</span></div>
+  <hr class="rule-2">
+</header>
+
+<nav class="switcher" aria-label="Sections">
+  <div class="wrap" role="tablist">
+    <button role="tab" id="t-home" aria-controls="home" aria-selected="true" data-go="home"><span class="num">i.</span>Home</button>
+    <button role="tab" id="t-ballot" aria-controls="ballot" aria-selected="false" data-go="ballot" tabindex="-1"><span class="num">ii.</span>Your ballot</button>
+    <button role="tab" id="t-race" aria-controls="race" aria-selected="false" data-go="race" tabindex="-1"><span class="num">iii.</span>Race</button>
+  </div>
+</nav>
+
+<main id="main">
+
+<!-- ============ HOME ============ -->
+<section class="screen" id="home" role="tabpanel" aria-labelledby="t-home">
+  <div class="wrap">
+    <div class="lede">
+      <div>
+        <p class="kicker">Voter guide &middot; Alachua County</p>
+        <h1 class="h-xl">Know every name on <em>your</em> ballot.</h1>
+        <p class="deck">Enter an address and see each race you can vote in, from Congress to the courthouse, with every candidate listed in the order the county prints them. Sourced, cited, and free of spin.</p>
+        <p class="byline" style="margin-top:24px">By BallotScout &middot; Verified against official election records</p>
+      </div>
+      <aside class="col-r countdown" aria-labelledby="cd-h">
+        <p class="kicker" id="cd-h">Days until the polls open</p>
+        <p class="big" id="cd-days" aria-live="off">10</p>
+        <p class="legend">Until Tuesday, November 3, 2026</p>
+        <div class="cd-parts" role="timer" aria-label="Countdown to election day">
+          <div><b id="cd-h2">00</b><span>Hours</span></div>
+          <div><b id="cd-m">00</b><span>Minutes</span></div>
+          <div><b id="cd-s">00</b><span>Seconds</span></div>
+        </div>
+        <p class="note">Polls open 7:00 a.m. to 7:00 p.m. Early voting and mail ballot deadlines vary; check the Supervisor of Elections.</p>
+      </aside>
+    </div>
+
+    <section class="start" aria-labelledby="start-h">
+      <div class="start-head">
+        <h2 class="h-l" id="start-h">Three ways to find your ballot</h2>
+        <span class="byline">Choose one &middot; takes under a minute</span>
+      </div>
+      <div class="ways">
+        <article class="way">
+          <span class="no" aria-hidden="true">1.</span>
+          <h3>Enter an address</h3>
+          <p>The fastest route. We match your street address to your exact districts.</p>
+          <form class="field" data-go-form="ballot">
+            <label for="addr">Street address</label>
+            <input id="addr" name="addr" autocomplete="street-address" placeholder="1600 SW Archer Rd, Gainesville, FL" value="">
+            <button class="btn" type="submit" style="margin-top:12px;width:100%">Find my ballot</button>
+          </form>
+        </article>
+        <article class="way">
+          <span class="no" aria-hidden="true">2.</span>
+          <h3>Click the map</h3>
+          <p>Don't want to type an address? Point to where you live.</p>
+          <svg class="minimap" viewBox="0 0 300 170" role="img" aria-label="Sketch map of Alachua County. Activate the button below to choose a location.">
+            <defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#17140F" stroke-width=".7" opacity=".5"/></pattern></defs>
+            <path d="M20 30 L120 18 L210 28 L280 52 L270 120 L200 152 L90 148 L28 110 Z" fill="url(#hatch)"/>
+            <path d="M120 18 L130 92 L200 152 M28 110 L130 92 L270 120 M130 92 L210 28" stroke-dasharray="3 3"/>
+            <g transform="translate(118 84)"><circle r="7" fill="#1E4B38"/><circle r="12" fill="none" stroke="#1E4B38" stroke-width="1.2"/></g>
+          </svg>
+          <button class="btn ghost" type="button" data-go="ballot">Drop a pin</button>
+        </article>
+        <article class="way">
+          <span class="no" aria-hidden="true">3.</span>
+          <h3>Choose districts</h3>
+          <p>Already know your districts? Select them directly.</p>
+          <form class="field" data-go-form="ballot" style="display:grid;gap:10px">
+            <div><label for="d1">Congressional</label><select id="d1"><option>District 3</option><option>District 1</option><option>District 2</option></select></div>
+            <div><label for="d2">State Senate</label><select id="d2"><option>District 6</option><option>District 8</option></select></div>
+            <div><label for="d3">State House</label><select id="d3"><option>District 22</option><option>District 21</option></select></div>
+            <button class="btn ghost" type="submit">Show these races</button>
+          </form>
+        </article>
+      </div>
+    </section>
+
+    <section class="how" aria-labelledby="how-h">
+      <p class="kicker">Method</p>
+      <h2 class="h-l" id="how-h">How it works</h2>
+      <div class="how-grid">
+        <article><span class="n">Step one</span><h3>We read the official record</h3><p>Candidate lists come straight from the state's qualified-candidate and sample-ballot files, in the order printed on your ballot.</p></article>
+        <article><span class="n">Step two</span><h3>Gemini does the legwork</h3><p>For any race, Gemini Deep Research reads dozens of public sources and drafts a side-by-side report on each candidate's record and platform.</p></article>
+        <article><span class="n">Step three</span><h3>You check the footnotes</h3><p>Every claim carries a numbered citation. Where we couldn't verify something, we say so plainly instead of guessing.</p></article>
+      </div>
+      <div class="principles">
+        <div><p class="kicker">Our standards</p><h2 class="h-m">What we will not do</h2></div>
+        <ul>
+          <li><b>No endorsements.</b> Not now, not ever.</li>
+          <li><b>No party colors.</b> Party is a label, never a shade.</li>
+          <li><b>No ranking.</b> Candidates appear alphabetically.</li>
+          <li><b>No tracking.</b> Your address stays in your browser.</li>
+        </ul>
+      </div>
+    </section>
+  </div>
+</section>
+
+<!-- ============ BALLOT ============ -->
+<section class="screen" id="ballot" role="tabpanel" aria-labelledby="t-ballot" hidden>
+  <div class="wrap">
+    <header class="page-head">
+      <p class="kicker">Your ballot &middot; 2026 General Election</p>
+      <h1 class="h-xl" style="font-size:clamp(2.4rem,6vw,4.6rem)">Thirteen contests, <em style="font-weight:500;color:var(--accent)">one page.</em></h1>
+      <p class="addr">1600 SW Archer Rd, Gainesville, FL 32610</p>
+      <div class="chips" aria-label="Your districts">
+        <span class="chip on">Alachua County</span><span class="chip">Congress &middot; District 3</span><span class="chip">State Senate &middot; District 6</span><span class="chip">State House &middot; District 22</span>
+        <button class="btn ghost" style="min-height:32px;padding:4px 12px;font-size:11.5px" type="button" data-go="home">Change address</button>
+      </div>
+    </header>
+
+    <div class="ballot-grid">
+      <div id="levels"></div>
+
+      <aside class="sidebar" aria-label="Map and verification">
+        <figure class="figure">
+          <svg class="map" viewBox="0 0 390 420" role="img" aria-labelledby="map-t map-d">
+            <title id="map-t">Stylized district map</title>
+            <desc id="map-d">Schematic map showing Congressional District 3, State Senate District 6 and State House District 22 around Gainesville, with a pin at 1600 SW Archer Road.</desc>
+            <defs>
+              <pattern id="h1" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" stroke="#17140F" stroke-width=".8" opacity=".45"/></pattern>
+              <pattern id="h2" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r=".8" fill="#17140F" opacity=".45"/></pattern>
+              <pattern id="h3" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)"><line x1="0" y1="0" x2="0" y2="7" stroke="#1E4B38" stroke-width="1.1" opacity=".75"/></pattern>
+            </defs>
+            <rect x="6" y="6" width="378" height="408" fill="none" stroke="#17140F" stroke-width="1"/>
+            <!-- CD3 outer -->
+            <path d="M24 40 L190 24 L300 46 L366 98 L350 230 L290 330 L180 392 L70 360 L30 250 Z" fill="url(#h1)" stroke="#17140F" stroke-width="1.5"/>
+            <!-- Senate 6 -->
+            <path d="M120 120 L250 100 L320 170 L296 270 L196 320 L108 270 L94 190 Z" fill="url(#h2)" stroke="#17140F" stroke-width="1.5"/>
+            <!-- House 22 (highlight) -->
+            <path d="M150 170 L240 156 L276 214 L240 268 L170 276 L136 226 Z" fill="url(#h3)" stroke="#1E4B38" stroke-width="2.5"/>
+            <!-- roads -->
+            <path d="M24 214 C100 200 180 230 366 190" fill="none" stroke="#17140F" stroke-width="1" stroke-dasharray="1 4"/>
+            <path d="M200 24 C190 120 220 250 180 392" fill="none" stroke="#17140F" stroke-width="1" stroke-dasharray="1 4"/>
+            <!-- Lake -->
+            <path d="M286 288 C300 280 322 290 316 306 C310 320 284 316 286 288Z" fill="#F8F4E8" stroke="#17140F" stroke-width="1"/>
+            <text x="262" y="332" font-size="10" font-style="italic" fill="#4A4538">Newnans Lake</text>
+            <!-- labels -->
+            <text x="48" y="74" font-size="11" letter-spacing="2" font-weight="700" fill="#17140F">CONGRESS 3</text>
+            <text x="110" y="136" font-size="11" letter-spacing="2" font-weight="700" fill="#17140F" style="paint-order:stroke;stroke:#F8F4E8;stroke-width:4px">SENATE 6</text>
+            <text x="164" y="252" font-size="11" letter-spacing="2" font-weight="700" fill="#1E4B38" style="paint-order:stroke;stroke:#F8F4E8;stroke-width:4px">HOUSE 22</text>
+            <!-- pin -->
+            <g transform="translate(196 214)"><circle r="14" fill="#F8F4E8" stroke="#1E4B38" stroke-width="1.5"/><circle r="6" fill="#1E4B38"/></g>
+            <text x="214" y="196" font-size="11.5" font-style="italic" font-weight="600" fill="#17140F" style="paint-order:stroke;stroke:#F8F4E8;stroke-width:4px">Your address</text>
+            <text x="198" y="420" font-size="0"></text>
+            <!-- compass -->
+            <g transform="translate(346 372)" stroke="#17140F" fill="#17140F"><path d="M0 -18 L5 0 L0 -4 L-5 0Z"/><text x="-4" y="14" font-size="11" font-weight="700" stroke="none">N</text></g>
+            <!-- scale -->
+            <g transform="translate(24 394)" font-size="9.5"><path d="M0 0 H60 M0 -4 V4 M60 -4 V4" stroke="#17140F" fill="none"/><text x="66" y="3" fill="#4A4538" font-style="italic">5 mi (schematic)</text></g>
+          </svg>
+          <figcaption><b>Fig. 1</b> &nbsp;Where your districts overlap. Hatching is for legibility only; boundaries are illustrative.</figcaption>
+        </figure>
+
+        <div class="provenance">
+          <h2><span class="seal" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 14 14"><path d="M2 7.5 L5.5 11 L12 3" fill="none" stroke="currentColor" stroke-width="2"/></svg></span>Verified from official election records</h2>
+          <p>Candidates and districts matched to Florida Division of Elections filings and the Alachua County sample ballot, retrieved Oct 23, 2026.</p>
+          <a class="btn ghost" href="https://www.alachuacounty.us/Depts/SOE" style="width:100%">Verify on the official sample ballot</a>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RACE ============ -->
+<section class="screen" id="race" role="tabpanel" aria-labelledby="t-race" hidden>
+  <div class="wrap">
+    <p class="crumbs"><a href="#" data-go="ballot">Your ballot</a> &nbsp;/&nbsp; Federal &nbsp;/&nbsp; Representative in Congress</p>
+    <header class="page-head" style="padding-bottom:0">
+      <p class="kicker">Federal &middot; U.S. House &middot; Florida District 3</p>
+      <h1 class="h-xl" style="font-size:clamp(2.4rem,6vw,4.8rem)">Representative in Congress, <em style="font-weight:500;color:var(--accent)">District 3</em></h1>
+      <p class="deck">Represents Florida's 3rd Congressional District in the U.S. House. Three names appear on your ballot, listed alphabetically.</p>
+    </header>
+
+    <div class="cand-row" role="group" aria-label="Candidates. Select one to read their profile.">
+      <button class="cand" type="button" aria-expanded="true" aria-controls="profile" data-cand="cammack"><span class="ini" aria-hidden="true">C</span><span class="nm">Kat Cammack</span><span class="pt">Republican</span><span class="st">Incumbent &middot; read profile</span></button>
+      <button class="cand" type="button" aria-expanded="false" aria-controls="profile" data-cand="harp"><span class="ini" aria-hidden="true">H</span><span class="nm">Seth Harp</span><span class="pt">Democratic</span><span class="st">Challenger &middot; read profile</span></button>
+      <button class="cand" type="button" aria-expanded="false" aria-controls="profile" data-cand="klein"><span class="ini" aria-hidden="true">K</span><span class="nm">Mike Klein</span><span class="pt">No Party Affiliation</span><span class="st">Challenger &middot; read profile</span></button>
+    </div>
+
+    <div class="feature" id="profile" aria-live="polite">
+      <article class="profile" id="profile-main">
+        <p class="kicker">Candidate profile &middot; Kat Cammack</p>
+        <h2>Kat Cammack</h2>
+        <p class="summary dropcap">Kat Cammack is the Republican incumbent representing Florida's 3rd Congressional District in the U.S. House of Representatives. First elected to Congress in 2020, she is seeking re-election in the November 3, 2026 general election. Her platform focuses on border security, regulatory reduction, fiscal conservatism, and support for agricultural and small business interests.</p>
+        <div class="dl" id="dl"></div>
+        <h3 class="byline" style="margin-top:32px;font-family:var(--body)">Notes &amp; sources</h3>
+        <ol class="notes" id="pnotes"></ol>
+      </article>
+      <aside class="aside-col">
+        <blockquote class="pull"><p>Lower taxes, reduced federal spending, and regulatory reform.</p><cite>How her campaign describes its economic platform</cite></blockquote>
+        <div class="factbox">
+          <h4>Campaign finance &middot; FEC</h4>
+          <dl><dt>Total receipts</dt><dd>$2,045,294</dd><dt>Disbursements</dt><dd>$1,723,874</dd><dt>Cash on hand</dt><dd>$876,971</dd></dl>
+          <p style="font-size:13.5px;color:var(--ink-2);margin:12px 0 0">Through July 29, 2026. Committee: Kat for Congress.</p>
+        </div>
+        <a class="btn ghost" href="https://katforcongress.com/">Campaign website</a>
+      </aside>
+    </div>
+
+    <!-- DEEP RESEARCH -->
+    <section class="research" aria-labelledby="dr-h">
+      <div class="research-head">
+        <div><p class="kicker">The long read &middot; AI research desk</p><h2 class="h-l" id="dr-h">Gemini Deep Research: how the three candidates compare</h2></div>
+        <span class="badge">AI-generated &middot; 40 sources</span>
+      </div>
+      <div class="research-grid">
+        <aside class="dispatch" aria-label="Research progress">
+          <h3><span>Research dispatch</span><button class="link-btn" id="replay" type="button">Replay</button></h3>
+          <ol class="steps" id="steps" aria-live="polite"></ol>
+        </aside>
+
+        <div class="report" id="report">
+          <p class="byline">Filed by Gemini Deep Research &middot; Oct 23, 2026 &middot; 10:28 p.m. &middot; 40 sources consulted</p>
+          <h3 class="h-m" style="font-size:1.9rem;margin:12px 0 20px;font-weight:800">2026 General Election Voter Guide: Representative in Congress, Florida District 3</h3>
+          <p class="lead-in dropcap">The November 3, 2026, general election for Florida's 3rd Congressional District features a three-way contest to represent a diverse geographic constituency spanning North Central Florida. The district boundaries encompass Alachua, Baker, Bradford, Columbia, Dixie, Gilchrist, Hamilton, Lafayette, Levy, Marion, Suwannee, and Union counties<sup class="fn"><a href="#rn1" id="rr1">[1]</a><a href="#rn2" id="rr2">[2]</a></sup>. Historically, the district has leaned conservative, carrying a Cook Partisan Voter Index (CPVI) of R+10, which indicates a voting electorate that performs ten percentage points more Republican than the national average<sup class="fn"><a href="#rn3" id="rr3">[3]</a></sup>.</p>
+          <p>This voter guide provides a neutral, comprehensive, and detailed overview of the three candidates appearing on the general election ballot: incumbent Representative Kat Cammack (Republican), challenger Seth Harp (Democratic), and challenger Mike Klein (No Party Affiliation)<sup class="fn"><a href="#rn4" id="rr4">[4]</a><a href="#rn5" id="rr5">[5]</a></sup>. To ensure a strictly nonpartisan evaluation, the profiles are structured identically, offering a side-by-side comparison of each candidate's professional background, stated policy positions, documented public record, campaign finance filings, and official endorsements.</p>
+
+          <blockquote class="pull" style="margin:32px 0"><p>The incumbent holds a massive financial lead, but both challengers are leveraging professional backgrounds in education and military service.</p><cite>From the research log &middot; Step 5</cite></blockquote>
+
+          <h3 class="sec">Side-by-side comparison of stated positions</h3>
+          <p>The table compares verified policy positions across major issue categories, based on official platforms, legislative actions, and public statements<sup class="fn"><a href="#rn8">[8]</a><a href="#rn9">[9]</a><a href="#rn12">[12]</a></sup>.</p>
+          <p class="scrollhint" aria-hidden="true">Scroll the table sideways &rarr;</p>
+          <div class="tablewrap" tabindex="0" role="region" aria-label="Candidate comparison table, scrollable">
+            <table id="cmp"></table>
+          </div>
+
+          <h3 class="sec">What we couldn't verify</h3>
+          <div class="unverified">
+            <p style="margin:0">In adherence to strict journalistic standards requiring the reporting of only documented facts, some information could not be verified. <b>Mike Klein's complete "5 Pillars" platform:</b> only four pillars were explicitly named and detailed in the public record. <b>Seth Harp's biography:</b> historical records show a former Republican state legislator in Georgia with the same name, while current materials describe a Florida educator and radio host; the sources do not resolve whether these are the same person.</p>
+          </div>
+
+          <div class="disclaimer"><b>Note</b><span>AI-generated by Gemini Deep Research (gemini-3.8-flash). It may contain errors; verify with the sources listed below before relying on it.</span></div>
+
+          <h3 class="sec" style="margin-top:8px">Notes &amp; sources</h3>
+          <ol class="notes" id="rnotes"></ol>
+          <p class="byline" style="margin-top:12px">Showing 14 of 40 sources &middot; <a href="#">View all sources</a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="ask" aria-labelledby="ask-h">
+      <div><p class="kicker">Reader's desk</p><h2 class="h-l" id="ask-h">Ask about this race</h2><p class="deck" style="font-size:1.1rem;margin-top:12px">Questions are answered from the cited research above, with sources.</p></div>
+      <div>
+        <form id="askf">
+          <div class="grow" style="flex:1 1 260px"><label for="q">Your question</label><input id="q" name="q" placeholder="e.g. Where do the candidates differ on healthcare?" autocomplete="off"></div>
+          <button class="btn" type="submit" style="align-self:flex-end">Ask</button>
+        </form>
+        <ul class="suggest" aria-label="Suggested questions">
+          <li><button type="button">Where do they differ on healthcare?</button></li>
+          <li><button type="button">Who has raised the most?</button></li>
+          <li><button type="button">What is the district's makeup?</button></li>
+        </ul>
+        <div class="answer" id="answer" hidden aria-live="polite">
+          <p class="kicker">Answer</p>
+          <p id="answer-t" style="margin:0"></p>
+        </div>
+      </div>
+    </section>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap"><span>BallotScout is nonpartisan. It does not endorse candidates or parties.</span><span>Built at Gator Hack V &middot; University of Florida</span></div></footer>
+
+<script>
+(function(){
+  /* ---------- data ---------- */
+  var RACES=[
+   ["federal","United States Senator","Represents Florida in the U.S. Senate (special election for the remainder of the term).",[["Neil Gillespie","No Party Affiliation"],["Ashley Moody","Republican"],["Angie Nixon","Democratic"]]],
+   ["federal","Representative in Congress, District 3","Represents Florida's 3rd Congressional District in the U.S. House.",[["Kat Cammack","Republican"],["Seth Harp","Democratic"],["Mike Klein","No Party Affiliation"]],"race"],
+   ["state","Governor and Lieutenant Governor","Florida's chief executive, elected with a running mate for a four-year term.",[["Dean Abrams","No Party Affiliation"],["Kathy Anderson","Write-in"],["Charles Burkett","No Party Affiliation"],["Jeffrey Datto","No Party Affiliation"],["Moliere Dimanche","No Party Affiliation"],["Byron Donalds","Republican"],["Scott Jewett","Libertarian"],["David Jolly","Democratic"],["Erik Morris","Write-in"],["Frank Russo","No Party Affiliation"]]],
+   ["state","Attorney General","Florida's chief legal officer; a member of the Cabinet.",[["Jose Rodriguez","Democratic"],["James Uthmeier","Republican"]]],
+   ["state","Chief Financial Officer","Oversees state finances and insurance regulation; a member of the Cabinet.",[["Blaise Ingoglia","Republican"],["Annette Taddeo","Democratic"]]],
+   ["state","Commissioner of Agriculture","Leads the Department of Agriculture and Consumer Services; a member of the Cabinet.",[["Kyle Gibson","Write-in"],["Joey Mendoza Atkins","Democratic"],["Wilton Simpson","Republican"]]],
+   ["state","State Senator, District 6","Represents Senate District 6 in the Florida Legislature.",[["Jason Bellamy-Fults","Democratic"],["Jennifer Bradley","Republican"],["Joseph Thornton","American Solidarity"]]],
+   ["state","State Representative, District 22","Represents House District 22 in the Florida Legislature.",[["Chad Johnson","Republican"],["Amy Trask","Democratic"]]],
+   ["judicial","Supreme Court Justice — Retention","Voters decide whether the justice remains on the Florida Supreme Court for another term.",[["Carlos Muniz","Nonpartisan"]]],
+   ["judicial","First District Court of Appeal — Retention","Voters decide whether each judge remains on the First District Court of Appeal, which hears appeals from Alachua County.",[["Joseph Lewis Jr.","Nonpartisan"],["Rachel Nordby","Nonpartisan"],["Tim Osterhaus","Nonpartisan"],["Clay Roberts","Nonpartisan"],["Raymond Treadwell","Nonpartisan"]]],
+   ["measure","Amendment 1: Budget Stabilization Fund","Statewide constitutional amendment proposed for the 2026 General Election ballot.",[]],
+   ["measure","Amendment 2: Exemption of Tangible Personal Property on Agricultural Land from Taxation","Statewide constitutional amendment proposed for the 2026 General Election ballot.",[]],
+   ["measure","Amendment 3: Increased Homestead Exemption; Lower Cap on Increases in Non-Homestead Property Assessments","Statewide constitutional amendment proposed for the 2026 General Election ballot.",[]]
+  ];
+  var LEVELS=[["federal","Federal"],["state","State"],["judicial","Judicial"],["measure","Ballot measures"]];
+  var ROMAN=["I","II","III","IV"];
+  function esc(s){return s.replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+
+  /* ---------- ballot ledger ---------- */
+  var out="";
+  LEVELS.forEach(function(L,i){
+    var rs=RACES.filter(function(r){return r[0]===L[0]});
+    out+='<section class="level" aria-labelledby="lv-'+L[0]+'"><div class="level-head"><span class="lno">'+ROMAN[i]+'.</span><h2 id="lv-'+L[0]+'">'+L[1]+'</h2><span class="ct">'+rs.length+(rs.length>1?' contests':' contest')+'</span></div>';
+    rs.forEach(function(r){
+      var t=esc(r[1]);
+      var link=r[4]?'<a href="#" data-go="race">'+t+'</a>':t;
+      out+='<article class="race"><div class="race-top"><h3>'+link+'</h3>'+(r[4]?'<a class="more" href="#" data-go="race">Read the race &rarr;</a>':'')+'</div><p class="desc">'+esc(r[2])+'</p>';
+      if(r[3].length){
+        out+='<ul class="cands" aria-label="Candidates for '+t+'">'+r[3].map(function(c){return '<li><span class="nm">'+esc(c[0])+'</span><span class="lead" aria-hidden="true"></span><span class="pt">'+esc(c[1])+'</span></li>'}).join('')+'</ul>';
+      } else out+='<p class="measure-note">Yes / No vote. Full ballot summary and fiscal impact to follow.</p>';
+      out+='</article>';
+    });
+    out+='</section>';
+  });
+  document.getElementById('levels').innerHTML=out;
+
+  /* ---------- profile ---------- */
+  var SRC=[["Kat Cammack - Ballotpedia","https://ballotpedia.org/Kat_Cammack"],["Kat Cammack for Congress","https://katforcongress.com/"],["About Kat | Representative Kat Cammack - House.gov","https://cammack.house.gov/about"],["CAMMACK, KAT - Candidate overview - FEC","https://www.fec.gov/data/candidate/H0FL03115/"],["Maggie's List Announces First Round of U.S. House Endorsements","https://maggieslist.org/news/maggies-list-announces-first-round-of-u-s-house-endorsements"]];
+  var PROF=[
+   ["Background",[["Occupation","According to her official congressional biography and campaign materials, Cammack has worked as a small business owner, political strategist, and deputy chief of staff for former U.S. Representative Ted Yoho.",[1,3]],["Education","According to her official biography and Ballotpedia, Cammack earned a Bachelor of Arts in International Relations from Metropolitan State University of Denver in 2011 and a Master of Science in National Defense and Strategic Studies from the United States Naval War College in 2018.",[1,3]],["Prior public offices","According to Ballotpedia and the Biographical Directory of the United States Congress, Cammack has served as the U.S. Representative for Florida's 3rd Congressional District since taking office in January 2021.",[1]]]],
+   ["Positions",[["Economy and spending","According to her campaign and congressional websites, Cammack advocates for lower taxes, reduced federal spending, and regulatory reform, including sponsoring the REINS Act to require congressional approval for major executive agency rules.",[2,3]],["Border security and immigration","According to her campaign website, Cammack supports strict enforcement of immigration laws and prioritizing physical and technological security along the U.S. southern border.",[2]],["Second Amendment","According to her campaign website, Cammack supports defending Second Amendment gun ownership rights and opposes federal legislation that restricts firearm access for law-abiding citizens.",[2]],["Agriculture and rural affairs","According to her official congressional statements, Cammack prioritizes protections and disaster assistance for Florida farmers and ranchers through federal Farm Bill legislation and agricultural relief programs.",[2,3]]]],
+   ["Funding &amp; endorsements",[["Federal campaign finance","According to Federal Election Commission (FEC) filings for the 2025–2026 cycle through July 29, 2026, Cammack's principal campaign committee reported $2,045,294 in total receipts, $1,723,874 in total disbursements, and $876,971 in cash on hand.",[4]],["Public endorsements","According to Ballotpedia and organization press releases, Cammack has been endorsed by former President Donald Trump and the political action committee Maggie's List.",[1,5]]]]
+  ];
+  function fn(arr,prefix){return '<sup class="fn">'+arr.map(function(n){return '<a href="#'+prefix+n+'">['+n+']</a>'}).join('')+'</sup>'}
+  document.getElementById('dl').innerHTML=PROF.map(function(g){
+    return '<div class="dl-group"><h3>'+g[0]+'</h3><dl style="margin:0">'+g[1].map(function(i){return '<div class="item"><dt>'+i[0]+'</dt><dd>'+i[1]+fn(i[2],'pn')+'</dd></div>'}).join('')+'</dl></div>';
+  }).join('');
+  document.getElementById('pnotes').innerHTML=SRC.map(function(s,i){return '<li id="pn'+(i+1+0)+'"><span><a href="'+s[1]+'">'+esc(s[0])+'</a></span></li>'}).join('');
+
+  /* candidate switching (demo: Cammack has the full profile) */
+  var cands=document.querySelectorAll('.cand');
+  var NAMES={cammack:"Kat Cammack",harp:"Seth Harp",klein:"Mike Klein"};
+  cands.forEach(function(b){b.addEventListener('click',function(){
+    cands.forEach(function(x){x.setAttribute('aria-expanded',x===b?'true':'false')});
+    var main=document.getElementById('profile-main');
+    if(b.dataset.cand==='cammack'){main.hidden=false;var n=document.getElementById('prof-note');if(n)n.remove();}
+    else{main.hidden=true;var n2=document.getElementById('prof-note');if(!n2){n2=document.createElement('article');n2.id='prof-note';main.parentNode.insertBefore(n2,main)}
+      n2.innerHTML='<p class="kicker">Candidate profile</p><h2 style="font-size:clamp(2rem,4.5vw,3.4rem);font-weight:900">'+NAMES[b.dataset.cand]+'</h2><p class="deck" style="margin-top:16px">Profile generation is part of this mockup’s demo: the cited profile format shown for Kat Cammack applies to every candidate. See the side-by-side table below for this candidate’s positions.</p>';}
+  })});
+
+  /* ---------- comparison table ---------- */
+  var HEAD=[["Issue category",""],["Kat Cammack","Republican"],["Seth Harp","Democratic"],["Mike Klein","No Party Affiliation"]];
+  var ROWS=[
+   ["Economy, taxes &amp; labor","Advocates for minimizing government spending and keeping taxes low. Sponsored legislation (REINS Act) to limit the economic impact of executive branch regulations [9, 12].","Proposes raising the corporate tax rate to 26% and taxing executive stock awards. Advocates capping CEO pay at 150x the median worker salary [24].","Proposes a basic income floor for families facing an AI-driven economy. Advocates for antitrust enforcement to break monopolies and support fair wages [38]."],
+   ["Healthcare","Emphasizes free-market principles; maintains a legislative record opposing the expansion of government-run healthcare and focusing on deregulation [10, 12].","Guarantees affordable healthcare for all. Proposes doubling the behavioral health workforce over a decade via the D.O. Initiative [24, 25].","Focuses on breaking prescription drug monopolies. Advocates for veteran-informed care in private civilian hospitals and investments in addiction treatment [25, 38]."],
+   ["Social Security &amp; safety nets","Platforms heavily on budget conservatism and reducing the national deficit, opposing broad safety net expansions [9, 10].","Proposes stabilizing Social Security by raising the payroll tax cap to $250,000 [24, 25].","Pledges to protect Social Security and lower the overarching cost of living for rural and working-class families [35]."],
+   ["Foreign policy &amp; defense","Vocal supporter of the U.S.-Israel alliance. Voted against major foreign aid packages (e.g., Ukraine). Supports high defense spending and troop readiness [8, 9, 14].","Emphasizes domestic stability and middle-class rebuilding; does not feature foreign policy prominently in his core platform [11, 24].","Campaigns on a “Strength Through Peace” pillar, prioritizing global leadership through diplomacy rather than military intervention [37]."],
+   ["Second Amendment","Maintains strong support for the Second Amendment; backed legislative efforts to repeal federal regulations on firearm stabilizing braces [10, 12].","Issued an “F” grade by the NRA-Political Victory Fund regarding his stances on gun control and firearm regulations [27].","No verified information found regarding specific firearm policy platforms or Second Amendment stances."],
+   ["Governance &amp; ethics","Voted affirmatively to ban Members of Congress from trading individual stocks [13, 14].","Advocates for closing corporate tax loopholes and ensuring the government works for working people [20, 24].","Identifies systemic corruption as the primary threat to democracy; demands the removal of corporate PAC money from politics [5, 35, 36]."]
+  ];
+  function cite(s){return s.replace(/\s*\[([\d,\s]+)\]/g,function(m,g){return '<sup class="fn">'+g.split(',').map(function(n){n=n.trim();return '<a href="#rn'+n+'">['+n+']</a>'}).join('')+'</sup>'})}
+  var t='<caption>Table 1. Stated positions by issue, as reported in public records. Order is alphabetical by surname.</caption><thead><tr>'+HEAD.map(function(h,i){return '<th scope="col">'+h[0]+(h[1]?'<small>'+h[1]+'</small>':'')+'</th>'}).join('')+'</tr></thead><tbody>';
+  ROWS.forEach(function(r){t+='<tr><th scope="row">'+r[0]+'</th>'+r.slice(1).map(function(c){return '<td>'+cite(c)+'</td>'}).join('')+'</tr>'});
+  document.getElementById('cmp').innerHTML=t+'</tbody>';
+
+  /* ---------- report sources (numbered to match markers) ---------- */
+  var RS={1:"fox35orlando.com",2:"clickorlando.com",3:"ballotpedia.org",4:"ballotpedia.org",5:"katforcongress.com",8:"house.gov",9:"voteview.com",10:"katforcongress.com",12:"fec.gov",13:"insideelections.com",14:"ballotpedia.org",20:"maggieslist.org",24:"wikipedia.org",25:"legistorm.com",27:"ballotpedia.org",35:"katforcongress.com",36:"fec.gov",37:"house.gov",38:"ballotpedia.org"};
+  var rn="";Object.keys(RS).forEach(function(k){rn+='<li id="rn'+k+'" value="'+k+'"><span><span class="dom">'+RS[k]+'</span> &middot; <a href="#rr'+(k<=5?k:'1')+'">grounding link (Vertex AI Search)</a></span></li>'});
+  var rl=document.getElementById('rnotes');
+  rl.style.counterReset='none';rl.innerHTML=Object.keys(RS).map(function(k){return '<li id="rn'+k+'" style="grid-template-columns:2.6em 1fr"><span style="font:italic 700 1rem var(--display);color:var(--accent)">'+k+'.</span><span><span class="dom" style="font-weight:600;color:var(--ink)">'+RS[k]+'</span> <span class="dom">&middot; Vertex AI Search grounding link</span></span></li>'}).join('');
+  rl.querySelectorAll('li').forEach(function(li){li.style.counterIncrement='none'});
+  var st=document.createElement('style');st.textContent='#rnotes li::before{content:none}';document.head.appendChild(st);
+
+  /* ---------- research timeline ---------- */
+  var STEPS=[
+   ["Generating research plan","To best answer your request, I'm starting by constructing a comprehensive research plan. This will outline the key areas I need to investigate and the strategy I'll use to connect them."],
+   ["Establishing research scope","I am initiating a comprehensive investigation into the 2026 general election for Florida's 3rd Congressional District. My focus is centered on three candidates: Kat Cammack, Seth Harp, and Mike Klein, framing the inquiry around backgrounds, public service records, and core policy positions."],
+   ["Identifying primary information needs","To provide an accurate side-by-side comparison, I am identifying the specific data points required for each candidate, cross-referencing official government databases and financial disclosure repositories."],
+   ["Locating official platforms","My next phase involves locating official campaign documentation and verified statements to establish a baseline for each candidate's platform, including education, funding sources, and publicly announced endorsements."],
+   ["Initial candidate assessment","I am synthesizing the profiles of the three candidates. The incumbent holds a massive financial lead, while both challengers leverage specific professional backgrounds, education and military service, to appeal to the district's electorate."],
+   ["Investigating identity contradictions","I have identified a potential contradiction regarding the biographical history of the Democratic candidate. Resolving this discrepancy is crucial for establishing an accurate timeline of his public service and professional career."]
+  ];
+  var sl=document.getElementById('steps'),timer=null,reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function times(i){var m=22+Math.floor(i*1.7);return '10:'+(m<10?'0':'')+m+' p.m.'}
+  function draw(state){ // state: number of done steps; live = state (if < len)
+    sl.innerHTML=STEPS.map(function(s,i){
+      var c=i<state?'done':(i===state?'live':'wait');
+      return '<li class="'+c+'"><time>Step '+(i+1)+' &middot; '+(c==='wait'?'queued':c==='live'?'working':'done')+'</time><b>'+s[0]+'</b>'+(c!=='wait'?'<p>'+s[1]+'</p>':'')+'</li>';
+    }).join('');
+    if(state>=STEPS.length){sl.querySelectorAll('li').forEach(function(li){li.className='done'});}
+  }
+  sl.addEventListener('click',function(e){var li=e.target.closest('li');if(li)li.classList.toggle('open')});
+  function run(){
+    clearInterval(timer);
+    if(reduce){draw(STEPS.length);return}
+    var n=0;draw(0);
+    timer=setInterval(function(){n++;draw(n);if(n>=STEPS.length)clearInterval(timer)},1400);
+  }
+  document.getElementById('replay').addEventListener('click',run);
+
+  /* ---------- ask box ---------- */
+  var ANS={
+   health:"Cammack emphasizes free-market principles and has a record opposing expansion of government-run healthcare. Harp proposes guaranteeing affordable healthcare and doubling the behavioral health workforce over a decade. Klein focuses on breaking prescription drug monopolies and veteran-informed care in private hospitals. See Table 1, row 2 [10, 12, 24, 25, 38].",
+   money:"Federal Election Commission filings through July 29, 2026 show Kat Cammack's committee reporting $2,045,294 in receipts and $876,971 cash on hand. Comparable figures for the challengers were not verified in the research [4, 12].",
+   district:"The district spans Alachua, Baker, Bradford, Columbia, Dixie, Gilchrist, Hamilton, Lafayette, Levy, Marion, Suwannee, and Union counties, with a Cook PVI of R+10 [1, 2, 3]."
+  };
+  function show(k){var a=document.getElementById('answer');document.getElementById('answer-t').innerHTML=cite(ANS[k]||"Based on the research above, the sources do not address that directly. Try one of the suggested questions, or consult the numbered notes.");a.hidden=false}
+  document.getElementById('askf').addEventListener('submit',function(e){e.preventDefault();var q=document.getElementById('q').value.toLowerCase();show(/health|medic|drug/.test(q)?'health':/money|raise|fund|financ/.test(q)?'money':/district|county|counties|makeup|lean/.test(q)?'district':'')});
+  var sg=document.querySelectorAll('.suggest button');
+  ['health','money','district'].forEach(function(k,i){sg[i].addEventListener('click',function(){document.getElementById('q').value=sg[i].textContent;show(k)})});
+
+  /* ---------- tabs ---------- */
+  var tabs=[].slice.call(document.querySelectorAll('.switcher [role=tab]'));
+  function go(id,focus){
+    ['home','ballot','race'].forEach(function(s){document.getElementById(s).hidden=(s!==id)});
+    tabs.forEach(function(t){var on=t.dataset.go===id;t.setAttribute('aria-selected',on);t.tabIndex=on?0:-1});
+    if(id==='race')run();
+    window.scrollTo(0,0);
+    try{history.replaceState(null,'','#'+id)}catch(e){}
+    if(focus){document.getElementById('t-'+id).focus()}
+  }
+  document.addEventListener('click',function(e){
+    var a=e.target.closest('[data-go]');
+    if(a){e.preventDefault();go(a.dataset.go)}
+  });
+  tabs.forEach(function(t,i){t.addEventListener('keydown',function(e){
+    var j=e.key==='ArrowRight'?i+1:e.key==='ArrowLeft'?i-1:-1;
+    if(j>=0&&j<tabs.length){e.preventDefault();go(tabs[j].dataset.go,true)}
+  })});
+  document.querySelectorAll('[data-go-form]').forEach(function(f){f.addEventListener('submit',function(e){e.preventDefault();go(f.dataset.goForm)})});
+  var h=location.hash.slice(1);if(['ballot','race'].indexOf(h)>-1)go(h);
+
+  /* ---------- countdown ---------- */
+  var target=new Date(2026,10,3,7,0,0).getTime();
+  function tick(){
+    var d=Math.max(0,target-Date.now()),s=Math.floor(d/1000);
+    var days=Math.floor(s/86400),hh=Math.floor(s%86400/3600),mm=Math.floor(s%3600/60),ss=s%60;
+    function p(n){return (n<10?'0':'')+n}
+    document.getElementById('cd-days').textContent=days;
+    document.getElementById('cd-h2').textContent=p(hh);document.getElementById('cd-m').textContent=p(mm);document.getElementById('cd-s').textContent=p(ss);
+  }
+  tick();setInterval(tick,1000);
+})();
+</script>
+</body>
+</html>

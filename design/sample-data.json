@@ -1,0 +1,465 @@
+{
+  "ballot": {
+    "electionName": "2026 General Election",
+    "electionDate": "2026-11-03",
+    "address": "1600 SW Archer Rd, Gainesville, FL 32610",
+    "districts": {
+      "congressional": "3",
+      "stateSenate": "6",
+      "stateHouse": "22",
+      "county": "Alachua"
+    },
+    "races": [
+      {
+        "id": "fl-us-senate",
+        "title": "United States Senator",
+        "level": "federal",
+        "kind": "candidate",
+        "description": "Represents Florida in the U.S. Senate (special election for the remainder of the term).",
+        "candidates": [
+          {
+            "name": "Neil Gillespie",
+            "party": "No Party Affiliation"
+          },
+          {
+            "name": "Ashley Moody",
+            "party": "Republican"
+          },
+          {
+            "name": "Angie Nixon",
+            "party": "Democratic"
+          }
+        ]
+      },
+      {
+        "id": "fl-us-house-3",
+        "title": "Representative in Congress, District 3",
+        "level": "federal",
+        "kind": "candidate",
+        "description": "Represents Florida's 3rd Congressional District in the U.S. House.",
+        "candidates": [
+          {
+            "name": "Kat Cammack",
+            "party": "Republican"
+          },
+          {
+            "name": "Seth Harp",
+            "party": "Democratic"
+          },
+          {
+            "name": "Mike Klein",
+            "party": "No Party Affiliation"
+          }
+        ]
+      },
+      {
+        "id": "fl-governor",
+        "title": "Governor and Lieutenant Governor",
+        "level": "state",
+        "kind": "candidate",
+        "description": "Florida's chief executive, elected with a running mate for a four-year term.",
+        "candidates": [
+          {
+            "name": "Dean Abrams",
+            "party": "No Party Affiliation"
+          },
+          {
+            "name": "Kathy Anderson",
+            "party": "Write-in"
+          },
+          {
+            "name": "Charles Burkett",
+            "party": "No Party Affiliation"
+          },
+          {
+            "name": "Jeffrey Datto",
+            "party": "No Party Affiliation"
+          },
+          {
+            "name": "Moliere Dimanche",
+            "party": "No Party Affiliation"
+          },
+          {
+            "name": "Byron Donalds",
+            "party": "Republican"
+          },
+          {
+            "name": "Scott Jewett",
+            "party": "Libertarian"
+          },
+          {
+            "name": "David Jolly",
+            "party": "Democratic"
+          },
+          {
+            "name": "Erik Morris",
+            "party": "Write-in"
+          },
+          {
+            "name": "Frank Russo",
+            "party": "No Party Affiliation"
+          }
+        ]
+      },
+      {
+        "id": "fl-attorney-general",
+        "title": "Attorney General",
+        "level": "state",
+        "kind": "candidate",
+        "description": "Florida's chief legal officer; a member of the Cabinet.",
+        "candidates": [
+          {
+            "name": "Jose Rodriguez",
+            "party": "Democratic"
+          },
+          {
+            "name": "James Uthmeier",
+            "party": "Republican"
+          }
+        ]
+      },
+      {
+        "id": "fl-cfo",
+        "title": "Chief Financial Officer",
+        "level": "state",
+        "kind": "candidate",
+        "description": "Oversees state finances and insurance regulation; a member of the Cabinet.",
+        "candidates": [
+          {
+            "name": "Blaise Ingoglia",
+            "party": "Republican"
+          },
+          {
+            "name": "Annette Taddeo",
+            "party": "Democratic"
+          }
+        ]
+      },
+      {
+        "id": "fl-agriculture-commissioner",
+        "title": "Commissioner of Agriculture",
+        "level": "state",
+        "kind": "candidate",
+        "description": "Leads the Department of Agriculture and Consumer Services; a member of the Cabinet.",
+        "candidates": [
+          {
+            "name": "Kyle Gibson",
+            "party": "Write-in"
+          },
+          {
+            "name": "Joey Mendoza Atkins",
+            "party": "Democratic"
+          },
+          {
+            "name": "Wilton Simpson",
+            "party": "Republican"
+          }
+        ]
+      },
+      {
+        "id": "fl-state-senate-6",
+        "title": "State Senator, District 6",
+        "level": "state",
+        "kind": "candidate",
+        "description": "Represents Senate District 6 in the Florida Legislature.",
+        "candidates": [
+          {
+            "name": "Jason Bellamy-Fults",
+            "party": "Democratic"
+          },
+          {
+            "name": "Jennifer Bradley",
+            "party": "Republican"
+          },
+          {
+            "name": "Joseph Thornton",
+            "party": "American Solidarity"
+          }
+        ]
+      },
+      {
+        "id": "fl-state-house-22",
+        "title": "State Representative, District 22",
+        "level": "state",
+        "kind": "candidate",
+        "description": "Represents House District 22 in the Florida Legislature.",
+        "candidates": [
+          {
+            "name": "Chad Johnson",
+            "party": "Republican"
+          },
+          {
+            "name": "Amy Trask",
+            "party": "Democratic"
+          }
+        ]
+      },
+      {
+        "id": "fl-supreme-court-retention",
+        "title": "Supreme Court Justice \u2014 Retention",
+        "level": "judicial",
+        "kind": "retention",
+        "description": "Voters decide whether the justice remains on the Florida Supreme Court for another term.",
+        "candidates": [
+          {
+            "name": "Carlos Muniz",
+            "party": "Nonpartisan"
+          }
+        ]
+      },
+      {
+        "id": "fl-1st-dca-retention",
+        "title": "First District Court of Appeal \u2014 Retention",
+        "level": "judicial",
+        "kind": "retention",
+        "description": "Voters decide whether each judge remains on the First District Court of Appeal, which hears appeals from Alachua County.",
+        "candidates": [
+          {
+            "name": "Joseph Lewis Jr.",
+            "party": "Nonpartisan"
+          },
+          {
+            "name": "Rachel Nordby",
+            "party": "Nonpartisan"
+          },
+          {
+            "name": "Tim Osterhaus",
+            "party": "Nonpartisan"
+          },
+          {
+            "name": "Clay Roberts",
+            "party": "Nonpartisan"
+          },
+          {
+            "name": "Raymond Treadwell",
+            "party": "Nonpartisan"
+          }
+        ]
+      },
+      {
+        "id": "fl-amendment-1",
+        "title": "Budget Stabilization Fund",
+        "level": "state",
+        "kind": "measure",
+        "description": "Statewide constitutional amendment proposed for the 2026 General Election ballot.",
+        "candidates": []
+      },
+      {
+        "id": "fl-amendment-2",
+        "title": "Exemption of Tangible Personal Property on Agricultural Land from Taxation",
+        "level": "state",
+        "kind": "measure",
+        "description": "Statewide constitutional amendment proposed for the 2026 General Election ballot.",
+        "candidates": []
+      },
+      {
+        "id": "fl-amendment-3",
+        "title": "Increased Homestead Exemption; Lower Cap on Increases in Non-Homestead Property Assessments",
+        "level": "state",
+        "kind": "measure",
+        "description": "Statewide constitutional amendment proposed for the 2026 General Election ballot.",
+        "candidates": []
+      }
+    ]
+  },
+  "researchExcerpt": {
+    "raceTitle": "Representative in Congress, District 3",
+    "intro": "# 2026 General Election Voter Guide: Representative in Congress, Florida District 3\n\nThe November 3, 2026, general election for Florida's 3rd Congressional District features a three-way contest to represent a diverse geographic constituency spanning North Central Florida. The district boundaries encompass Alachua, Baker, Bradford, Columbia, Dixie, Gilchrist, Hamilton, Lafayette, Levy, Marion, Suwannee, and Union counties [1, 2]. Historically, the district has leaned conservative, carrying a Cook Partisan Voter Index (CPVI) of R+10, which indicates a voting electorate that performs ten percentage points more Republican than the national average [3]. \n\nThis voter guide provides a neutral, comprehensive, and detailed overview of the three candidates appearing on the general election ballot: incumbent Representative Kat Cammack (Republican), challenger Seth Harp (Democratic), and challenger Mike Klein (No Party Affiliation) [4, 5]. To ensure a strictly nonpartisan evaluation, the profiles below are structured identically, offering a side-by-side comparison of each candidate's professional background, stated policy positions, documented public record, campaign finance filings, and official endorsements.\n\n## Kat Cammack (Republican)\n\n### 1. Background\nKat Cammack is the incumbent Representative for Florida's 3rd Congressional District, a position she has occupied since assuming office on January 3, 2021, following her initial election victory in the 2020 cycle [6, 7]. Prior to her ",
+    "comparisonTable": "## Side-by-Side Comparison of Stated Positions\n\nTo facilitate a direct, nonpartisan evaluation of the candidates, the following table compares their verified policy positions across major issue categories based on official platforms, legislative actions, and public statements [8, 9, 12, 24, 25, 36, 37, 38]. \n\n| Issue Category | Kat Cammack (Republican) | Seth Harp (Democratic) | Mike Klein (No Party Affiliation) |\n| :--- | :--- | :--- | :--- |\n| **Economy, Taxes & Labor** | Advocates for minimizing government spending and keeping taxes low. Sponsored legislation (REINS Act) to limit the economic impact of executive branch regulations [9, 12]. | Proposes raising the corporate tax rate to 26% and taxing executive stock awards. Advocates capping CEO pay at 150x the median worker salary [24]. | Proposes a basic income floor for families facing an AI-driven economy. Advocates for antitrust enforcement to break monopolies and support fair wages [38]. |\n| **Healthcare** | Emphasizes free-market principles; maintains a legislative record opposing the expansion of government-run healthcare and focusing on deregulation [10, 12]. | Guarantees affordable healthcare for all. Proposes doubling the behavioral health workforce over a decade via the D.O. Initiative [24, 25]. | Focuses on breaking prescription drug monopolies. Advocates for veteran-informed care in private civilian hospitals and investments in addiction treatment [25, 38]. |\n| **Social Security & Safety Nets** | Platforms heavily on budget conservatism and reducing the national deficit, opposing broad safety net expansions [9, 10]. | Proposes stabilizing Social Security by raising the payroll tax cap to $250,000 [24, 25]. | Pledges to protect Social Security and lower the overarching cost of living for rural and working-class families [35]. |\n| **Foreign Policy & Defense** | Vocal supporter of the U.S.-Israel alliance. Voted against major foreign aid packages (e.g., Ukraine). Supports high defense spending and troop readiness [8, 9, 14]. | Emphasizes domestic stability and middle-class rebuilding; does not feature foreign policy prominently in his core platform [11, 24]. | Campaigns on a \"Strength Through Peace\" pillar, prioritizing global leadership through diplomacy rather than military intervention [37]. |\n| **Second Amendment** | Maintains strong support for the Second Amendment; backed legislative efforts to repeal federal regulations on firearm stabilizing braces [10, 12]. | Issued an \"F\" grade by the NRA-Political Victory Fund regarding his stances on gun control and firearm regulations [27]. | No verified information found regarding specific firearm policy platforms or Second Amendment stances. |\n| **Governance & Ethics** | Voted affirmatively to ban Members of Congress from trading individual stocks [13, 14]. | Advocates for closing corporate tax loopholes and ensuring the government works for working people [20, 24]. | Identifies systemic corruption as the primary threat to democracy; demands the removal of corporate PAC money from politics [5, 35, 36]. |\n\n***\n\n## What We Couldn't Verify\n\nIn adherence to strict journalistic standards requiring the reporting of only documented facts from the provided research materials, the following information could not be verified:\n\n*   **Mike Klein's Complete \"5 Pillars\" Platform:** While Klein's campaign is structurally built upon a \"5 Pillars\" platform, only four pillars were explicitly named and detailed in the public record: *Defending D",
+    "progressSteps": [
+      "***Generating research plan***\n\nTo best answer your request, I'm starting by constructing a comprehensive research plan. This will outline the key areas I need to investigate and the strategy I'll use to connect them.",
+      "**Establishing Research Scope**\n\nI am initiating a comprehensive investigation into the 2026 general election for Florida's 3rd Congressional District. My focus is centered on three candidates: Kat Cammack, Seth Harp, and Mike Klein. I am framing this inquiry around their professional backgrounds, public service records, and core policy positions to ensure a balanced and neutral comparison.",
+      "**Identifying Primary Information Needs**\n\nTo provide an accurate side-by-side comparison, I am identifying the specific data points required for each candidate, including their legislative history for incumbents and professional achievements for challengers. I am currently synthesizing a plan to resolve any potential gaps in public record data by cross-referencing official government databases and financial disclosure repositories.",
+      "**Locating Official Platforms**\n\nMy next phase involves locating official campaign documentation and verified statements to establish a baseline for each candidate's platform. I will begin by exploring primary sources to gather details on their education, funding sources, and publicly announced endorsements to build a complete profile for each individual.",
+      "**Initial Candidate Assessment**\n\nI am currently synthesizing the profiles of the three primary candidates for the 2026 race in Florida\u2019s 3rd Congressional District. The incumbent, Kat Cammack, is positioning herself as a veteran legislator with a focus on national security, tech policy, and fiscal conservatism, supported by a substantial fundraising advantage. Her challengers include Seth Harp, a civics teacher and former broadcaster running on an affordability platform, and Mike Klein, an independent candidate and Army veteran whose campaign centers on removing corporate influence from the political system. I have observed that while the incumbent holds a massive financial lead, both challengers are leveraging specific professional backgrounds\u2014education and military service\u2014to appeal to the district's diverse electorate.",
+      "**Investigating Identity Contradictions**\n\nI have identified a potential contradiction regarding the biographical history of the Democratic candidate. Historical records indicate a former Republican state legislator from Georgia with the same name, whereas current materials describe the candidate as a Florida-based educator and radio host. I am thinking through whether these are two different individuals or if there has been a significant shift in political affiliation and residence. Resolving this discrepancy is crucial for establishing an accurate timeline of his public service and professional career."
+    ],
+    "sourceCount": 40,
+    "sources": [
+      {
+        "title": "fox35orlando.com",
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHHYrZLgj44afD6XYH5_cZw0O3k8UPUpuE-C6MLQwn0w7uLw1FOoAvKMm6w4nAEgW0oEO7F_-vUKgi7gfQOwTbJlUre0RHkirVEqey8UyoFRkj7M28njjNadeRk1QcKkKtor3Bk4RRTNHSaAaXAlzZvig-Z6ODVCmg1JslEKrXwxVTnYcYvTXD9lQ=="
+      },
+      {
+        "title": "clickorlando.com",
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFGd5TB4xl7fKMwDiWNywsmbQrWwamhlPfh4xligW4sUqw-SD0VeCERaHQ-jhroPvhx6FahVT5xHgKXziD9CWTmOhAh_d6Gk-6gYHwvFFnylKvOclj8GcEzMo6GvlGeVIwQoURrCLCbuUj-rK53dYhCpoYSjl1UwxRHQ9SvqGh330dw0fiyIL-ko5uoAnHeMNrB"
+      },
+      {
+        "title": "ballotpedia.org",
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFOCZehCra3fOT-XZniP9n3W3WEJvQveD5xkdizlfpQJf-FR32EZV9txI-Ee29PNV4vJ_GFUlWwNmbQ2eJk1YlcbO1Fl9fjU4GTvOm0akj6J0vr0WlBLoOcidJ97Sdb69IfuA6U7RR7KL9sgv0Etzmr4hsXBGGm63spPQAAHFLecZ4X3ugPeEzxrkK84R-o1DZA9xRwiaQfRU8zMEazasZi6zk="
+      },
+      {
+        "title": "myflorida.com",
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGniqn1U2sCmjM-KqmNNVVvjfuQ0Qw5-APA-XHDKL1bUp_Jf_YhtAS7OI-W2GCLr4WHJ9AZMXOSxaHquzDAoLksAyKAUyPVqE8TBP-gxkc7b-CvblS5h8v32MAv7PaKFFS_aELMAFwgbnBWEtJOTKu0qoSxsXenRyw4UgZwxAdmhRG52YI="
+      },
+      {
+        "title": "ballotpedia.org",
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHbmmMevGm4YeaQGQrL4miI0E4LovYUpDuo11r48kC0nIqOccQ6x1qhswP7g2-nwJHCdxPP4ecWwRhoe4cK2xCvJFujpbUslaVhOxa-of_H5z6tkPTFYYFvNQat7YXG4D2bpQ=="
+      },
+      {
+        "title": "ballotpedia.org",
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHhM03dVmO_IKQnQ9sRKfrPabDj_M1O-SN1JhDh4uRqd0GQHYQjr0zVraW-dN9gXZMyR0b13kzLZzSK60JpbWBveD1ZFZSd6GiCdQ_01VpbQud2tqRouBL5eIawxEzgFHOY_p0_00R4DTs="
+      },
+      {
+        "title": "ballotpedia.org",
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQG9Zh6K4JikhdJ6Gh9-h8uNGXkxfBb33geqNyodxgB75wCCSCFg5qHhcORG5XFHK9UE8_9Y9CuOA6ny7FMFvzAloqzVXzU7ZZnsHy3frEGoAOSmunqfBuCHMw=="
+      },
+      {
+        "title": "theballotbrief.com",
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGkgm2qJJGRiKsWAcvxnuXf5aZshsGalThZafwiL7fVEjrcVijLvIDPPfdossJGDmnHnJN4PTZm74OSESQxgB2wTVKW9Oq4DtWtbTI8BWxR5jrVxMMep7svRiG9L-BjZkWmHK3sA7oKCO8="
+      }
+    ]
+  },
+  "candidateProfileExample": {
+    "candidateId": "fl-us-house-3-cammack",
+    "raceId": "fl-us-house-3",
+    "name": "Kat Cammack",
+    "summary": "Kat Cammack is the Republican incumbent representing Florida's 3rd Congressional District in the U.S. House of Representatives. First elected to Congress in 2020, she is seeking re-election in the November 3, 2026 general election. Her platform focuses on border security, regulatory reduction, fiscal conservatism, and support for agricultural and small business interests.",
+    "background": [
+      {
+        "label": "Occupation",
+        "text": "According to her official congressional biography and campaign materials, Cammack has worked as a small business owner, political strategist, and deputy chief of staff for former U.S. Representative Ted Yoho.",
+        "sourceIndexes": [
+          0,
+          2
+        ]
+      },
+      {
+        "label": "Education",
+        "text": "According to her official biography and Ballotpedia, Cammack earned a Bachelor of Arts in International Relations from Metropolitan State University of Denver in 2011 and a Master of Science in National Defense and Strategic Studies from the United States Naval War College in 2018.",
+        "sourceIndexes": [
+          0,
+          2
+        ]
+      },
+      {
+        "label": "Prior Public Offices",
+        "text": "According to Ballotpedia and the Biographical Directory of the United States Congress, Cammack has served as the U.S. Representative for Florida's 3rd Congressional District since taking office in January 2021.",
+        "sourceIndexes": [
+          0
+        ]
+      }
+    ],
+    "positions": [
+      {
+        "label": "Economy and Government Spending",
+        "text": "According to her campaign and congressional websites, Cammack advocates for lower taxes, reduced federal spending, and regulatory reform, including sponsoring the REINS Act to require congressional approval for major executive agency rules.",
+        "sourceIndexes": [
+          1,
+          2
+        ]
+      },
+      {
+        "label": "Border Security and Immigration",
+        "text": "According to her campaign website, Cammack supports strict enforcement of immigration laws and prioritizing physical and technological security along the U.S. southern border.",
+        "sourceIndexes": [
+          1
+        ]
+      },
+      {
+        "label": "Second Amendment",
+        "text": "According to her campaign website, Cammack supports defending Second Amendment gun ownership rights and opposes federal legislation that restricts firearm access for law-abiding citizens.",
+        "sourceIndexes": [
+          1
+        ]
+      },
+      {
+        "label": "Agriculture and Rural Affairs",
+        "text": "According to her official congressional statements, Cammack prioritizes protections and disaster assistance for Florida farmers and ranchers through federal Farm Bill legislation and agricultural relief programs.",
+        "sourceIndexes": [
+          1,
+          2
+        ]
+      }
+    ],
+    "funding": [
+      {
+        "label": "Federal Campaign Finance Totals",
+        "text": "According to Federal Election Commission (FEC) filings for the 2025\u20132026 election cycle through July 29, 2026, Cammack's principal campaign committee, Kat for Congress, reported $2,045,294 in total receipts, $1,723,874 in total disbursements, and $876,971 in cash on hand.",
+        "sourceIndexes": [
+          3
+        ]
+      }
+    ],
+    "endorsements": [
+      {
+        "label": "Public Endorsements",
+        "text": "According to Ballotpedia and organization press releases, Cammack has been endorsed by former President Donald Trump and the political action committee Maggie's List.",
+        "sourceIndexes": [
+          0,
+          4
+        ]
+      }
+    ],
+    "website": "https://katforcongress.com/",
+    "sources": [
+      {
+        "title": "Kat Cammack - Ballotpedia",
+        "url": "https://ballotpedia.org/Kat_Cammack"
+      },
+      {
+        "title": "Kat Cammack for Congress",
+        "url": "https://katforcongress.com/"
+      },
+      {
+        "title": "About Kat | Representative Kat Cammack - House.gov",
+        "url": "https://cammack.house.gov/about"
+      },
+      {
+        "title": "CAMMACK, KAT - Candidate overview - FEC",
+        "url": "https://www.fec.gov/data/candidate/H0FL03115/"
+      },
+      {
+        "title": "Maggie's List Announces First Round of U.S. House Endorsements",
+        "url": "https://maggieslist.org/news/maggies-list-announces-first-round-of-u-s-house-endorsements"
+      },
+      {
+        "title": "ballotpedia.org",
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFNgmGSRo1nxVgkTAQ-e_XB1vNFOx7LhEJaIyV6rMx32B0RDIkvt8dBkfc3tjwAFrAa1TfiKiZA49JYFjW-2wmueYrkc9pqWg1Dro_DPb9KLjvsyyivUK2GWg=="
+      },
+      {
+        "title": "wikipedia.org",
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEFNdsDVH9wpbcUTMouRD5mgKTkeCpZgPcfcGtgQG-fmpWj2CZLx7vsnJjldNugiRDraTTa0Aj-81mT3Qvrq-39-PvfKTjWSVUvp3A_t9GM0PCvVPiYzSHjiUcAMLpKnQ=="
+      },
+      {
+        "title": "legistorm.com",
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEqcMtvMfOnl_S9u37vyzlSnTFUDK6tLiG_Y-ZX3GTZH-LomIrEe92eEuuqDXnbaoXmi0xAwZ5q7TQ0GqP2t0pNNwvnwzchA6ZOJE9-jE1khJ-y96ACOD7mxPuzXUsnwg3ViXJuJQElrftdwBd_ofmCHLXP5vtFsmGR8YHd7_8UvA=="
+      },
+      {
+        "title": "katforcongress.com",
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGVU5VsB8A7bq0RS4WDkEVpx_zB_vSyQMNdWAh_c4xAeN1Q6JjBPP_8yW9GMGKxgtbPwNcH-U2Y_3YOIJSrzbynTpczAClHqQBPM3VbZBC8tz0="
+      },
+      {
+        "title": "house.gov",
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH_iHUjwlMGZwopHoY1F05uSYzq-wpS34YPYQiwdP3joXK_tranRY2Hgnjcf23VUleGGNaNwdrJX6KIQ9-BW-VmO32um3U6SQ2aUL5DNvuHROqm_f6E"
+      },
+      {
+        "title": "voteview.com",
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHOW0cmEy3ghtcU8zRtblkVdfLex28PD02LUSOr1bTcwDMBB4ahoWWaFVFEiui0oQKlnHx29Ighsv0CzaZg_XWxi--tYnW1i7Cz18_o3AbJNWC7aPr0E-9tl_Y2FFA6KYlGV-w="
+      },
+      {
+        "title": "katforcongress.com",
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFZPi8QpoKL7tqDOzDEE83pf4F6GkTVPWh5LItyZG10lfbuP6Z6PAgBDbbgEuLE6oJfToxIg7K7zhoxR2iZssDCbrbLn7pUH57f2P_bjiPmaCh_W8fcyCeJlg=="
+      },
+      {
+        "title": "fec.gov",
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEPcoIjKbShbonAHlatvNmYjB_RKvrircXI_i6asqOqnNAsuchmpL662bD5KLvhL1tut3PU4-XO-koFQT5wKvA4zkGBReeuOsQ-ovPDk13L0W1HNMdzCgFqafKSWnemguFM1HA="
+      },
+      {
+        "title": "insideelections.com",
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHQl6LYraVFepX2yMChiDO39N0SGZ8y52rQ65jLfRQBcdnl8Wj_MT-OZijedHeUKUk98RwXuQDHP2G-eshwFKl1QfNeT5rk1_kP65ci9SWoz7qjHRLQWrklXmmS9MXqSppVL_PRrg=="
+      },
+      {
+        "title": "ballotpedia.org",
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGtlX026NL9EsiiujtOdUWgvVazbieObBlICsyQop-0rt5AUgLYczKErw8o7sUjRT5vBTRLlkinl1uO6M8_ObbAY7wN8hmx0vZ2tLccU-J_r_1AYWUVeCYTKg=="
+      },
+      {
+        "title": "maggieslist.org",
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGZuHfvJyF6y6cAlnx6OA2vORHkJO5_nEP6Y8Wb_UWo5LXeCf2i_Q0CawQdbpXeegfb64d5MfXxCFWMWNaQYzh-F6nqB2KC5hxtk4c77pCvmABJWGoaz6rvOsqbnSAV5M3PQkBQnwKMFIw8y6n7879MexWOpOEeqKvwvUPOOmkKmDj7EhTxVc3_LxjA"
+      }
+    ],
+    "model": "gemini-3.8-flash",
+    "generatedAt": "2026-10-23T22:28:40.588Z",
+    "cached": false
+  }
+}
