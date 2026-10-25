@@ -60,9 +60,12 @@ Also `components/countdown.ts`: `ELECTION_OPENS` (7:00 AM ET, Nov 3 2026 = `2026
 
 ## Map (`MapView` / `MapLazy`)
 - Basemap: OpenFreeMap `styles/dark`, repainted at load (`darken()`) to green-tinted low contrast. Pin: accent dot with glow and ping ring.
-- Layers: congressional `#7CF29A` solid + glow; state senate `#5FD4C4` solid + glow; state house `#C8F7A0` dashed, thinner; county `#A5B7AE` dashed; old 2024 district `#8A9A92` dashed (off by default).
-- Props added: `bare` (no border/rounding, legend floats over map; for hero), `initialCenter`, `initialZoom`, `leftInset` (px left padding on desktop to clear docked panels). Defaults unchanged for existing callers. Legend is a dark fieldset with checkboxes.
-- Give the wrapper a size (`className="h-80"` etc.); in `bare` mode the parent must have a height.
+- Layers: congressional `#7CF29A` solid + glow; state senate `#5FD4C4` solid + glow; state house `#C8F7A0` dashed, thinner; user county `#A5B7AE` dashed; old 2024 district `#8A9A92` dashed (off by default).
+- App-controlled camera, three stages: `stage="nation" | "state" | "district"` (+ `stateAbbr`). Free navigation is disabled (no scroll/double-click/box zoom, no drag pan, no touch zoom/rotate, no keyboard, no +/- control) so the page scrolls normally over the map. Stage changes `fitBounds` (jump under `prefers-reduced-motion`). Nation = contiguous US (Alaska/Hawaii inset buttons via `onStateJump`); state = `lib/geo/states.ts` bbox; district = the congressional district boundary (or the pin).
+- A breadcrumb (`United States > Florida > District 3`) in the top corner is the only way to zoom out; parents handle `onStageChange`. Callbacks: `onStateClick(lat,lng)` (nation clicks), `onPointClick(lat,lng)` (state/district clicks and pin drops), `onStateJump(abbr)`.
+- Layer order (bottom to top): land/landuse, basemap boundaries, county lines (`d-cty-line`), our `d-*` district fills/glow/lines, water + waterway (so boundaries stop at shorelines), roads (dimmed), all labels. Orders are applied once by `orderLayers()`.
+- Labels follow the stage, not zoom: nation = our own state labels (all 50 + DC, abbreviations for crowded states); state = county names from `/api/counties?state=XX` + faint selected-state name, no cities; district = basemap city/town/village labels + quiet road names. Basemap state/country labels are always hidden.
+- Other props: `bare` (no border/rounding, legend floats over map; for hero), `leftInset` (px left padding on desktop to clear docked panels). The legend only shows in the district stage. Give the wrapper a size (`className="h-80"` etc.); in `bare` mode the parent must have a height.
 
 ## Don'ts
 No red/blue, no party colors, no accent as large text blocks or backgrounds beyond buttons, no `text-faint` for body text, no rounded-full pills, no emojis, no raw hex in components (use tokens), don't remove focus outlines.

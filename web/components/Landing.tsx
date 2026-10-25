@@ -1,10 +1,14 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { MapLazy } from "./MapLazy";
+import type { MapStage } from "./MapView";
+import { LocationSummary } from "./LocationSummary";
 import { useCountdown } from "./countdown";
 import { Panel, SectionLabel, buttonClass, fieldLabelClass, inputClass } from "./ui";
-import { queryToString, type LocationQuery } from "@/lib/api";
+import { getDistricts, queryToString, type LocationQuery } from "@/lib/api";
+import { STATE_BY_ABBR } from "@/lib/geo/states";
+import type { DistrictBoundaries, VoterLocation } from "@/lib/types";
 
 function Countdown() {
   const c = useCountdown();
@@ -48,16 +52,99 @@ export function Landing() {
   const [mode, setMode] = useState<Mode>(sp.get("mode") === "manual" ? "manual" : "address");
   const [address, setAddress] = useState("");
   const [pick, setPick] = useState<{ lat: number; lng: number } | null>(null);
+  const [stage, setStage] = useState<MapStage>("nation");
+  const [stateAbbr, setStateAbbr] = useState<string | undefined>();
+  const [found, setFound] = useState<{ loc: VoterLocation; boundaries: DistrictBoundaries } | null>(null);
+  const [looking, setLooking] = useState(false);
+  const lookSeq = useRef(0);
   const [m, setM] = useState({ state: sp.get("state") ?? "", county: sp.get("county") ?? "", cd: sp.get("cd") ?? "", sd: sp.get("sd") ?? "", hd: sp.get("hd") ?? "", place: sp.get("place") ?? "" });
   const [err, setErr] = useState("");
   const tabRefs = useRef<Record<Mode, HTMLButtonElement | null>>({ address: null, map: null, manual: null });
 
   const go = (q: LocationQuery) => router.push(`/ballot?${queryToString(q)}`);
 
+  const resetMap = () => {
+    lookSeq.current++;
+    setPick(null);
+    setFound(null);
+    setLooking(false);
+    setStage("nation");
+    setStateAbbr(undefined);
+  };
+
   const choose = (id: Mode) => {
+    if (id !== mode) resetMap();
     setMode(id);
     setErr("");
   };
+
+  // Follow-along: once the manual form holds a real state, the hero map frames it.
+  useEffect(() => {
+    if (mode !== "manual") return;
+    const abbr = m.state.trim().toUpperCase();
+    if (STATE_BY_ABBR[abbr]) {
+      setStateAbbr(abbr);
+      setStage("state");
+    } else {
+      setStage("nation");
+    }
+  }, [mode, m.state]);
+
+  const stepOut = (to: MapStage) => {
+    lookSeq.current++;
+    setLooking(false);
+    setErr("");
+    setStage(to);
+    if (to !== "district") {
+      setPick(null);
+      setFound(null);
+    }
+    if (to === "nation") setStateAbbr(undefined);
+  };
+
+  /** Nation stage: which state was clicked? Ask the districts API (no state polygons shipped). */
+  const onStateClick = async (lat: number, lng: number) => {
+    const seq = ++lookSeq.current;
+    setLooking(true);
+    setErr("");
+    try {
+      const d = await getDistricts({ lat: lat.toFixed(5), lng: lng.toFixed(5) });
+      if (seq !== lookSeq.current) return;
+      setStateAbbr(d.location.state);
+      setStage("state");
+    } catch {
+      if (seq === lookSeq.current) setErr("Click inside a US state to zoom in.");
+    } finally {
+      if (seq === lookSeq.current) setLooking(false);
+    }
+  };
+
+  /** State/district stage: drop the pin, look up the districts, frame the congressional district. */
+  const onPointClick = async (lat: number, lng: number) => {
+    const seq = ++lookSeq.current;
+    setPick({ lat, lng });
+    setLooking(true);
+    setErr("");
+    try {
+      const d = await getDistricts({ lat: lat.toFixed(5), lng: lng.toFixed(5) });
+      if (seq !== lookSeq.current) return;
+      setFound({ loc: d.location, boundaries: d.boundaries });
+      setStateAbbr(d.location.state);
+      setStage("district");
+    } catch {
+      if (seq === lookSeq.current) {
+        setFound(null);
+        setErr("We couldn't find districts there. Click a spot inside a US state.");
+      }
+    } finally {
+      if (seq === lookSeq.current) setLooking(false);
+    }
+  };
+
+  const cd = found?.loc.congressionalDistrict;
+  const districtLabel = cd ? (cd === "AL" ? "At-large district" : `District ${cd}`) : undefined;
+  const hint =
+    stage === "nation" ? "Click your state." : stage === "state" ? "Click near your home." : null;
   const onTabKey = (e: React.KeyboardEvent, i: number) => {
     let n = -1;
     if (e.key === "ArrowRight") n = (i + 1) % MODES.length;
@@ -100,17 +187,30 @@ export function Landing() {
           <MapLazy
             bare
             showLegend={false}
+            stage={stage}
+            stateAbbr={stateAbbr}
+            districtLabel={districtLabel}
+            boundaries={found?.boundaries}
             point={pick}
-            onPick={mode === "map" ? (lat, lng) => setPick({ lat, lng }) : undefined}
-            initialCenter={[-82.35, 29.65]}
-            initialZoom={9.6}
-            leftInset={560}
+            draggablePin={mode === "map" && Boolean(pick)}
+            onStageChange={stepOut}
+            onStateClick={mode === "map" ? onStateClick : undefined}
+            onPointClick={mode === "map" ? onPointClick : undefined}
+            onStateJump={
+              mode === "map"
+                ? (abbr) => {
+                    setStateAbbr(abbr);
+                    setStage("state");
+                  }
+                : undefined
+            }
+            leftInset={690}
             className="h-full min-h-72 w-full"
-            ariaLabel="Dark map of the Gainesville, Florida area. In click-the-map mode, click your home to drop a pin."
+            ariaLabel="Dark map of the United States. In click-the-map mode, click your state, then click near your home to drop a pin."
           />
-          {mode === "map" && (
-            <p className="pointer-events-none absolute left-3 top-3 z-10 rounded-chip border border-accent/60 bg-panel/95 px-2 py-1 font-mono text-xs text-accent lg:left-auto lg:right-14">
-              Click the map to drop a pin
+          {mode === "map" && hint && (
+            <p className="pointer-events-none absolute left-3 top-12 z-10 rounded-chip border border-accent/60 bg-panel/95 px-2 py-1 font-mono text-xs text-accent lg:left-auto lg:right-3 lg:top-14" role="status">
+              {looking ? "Looking up\u2026" : hint}
             </p>
           )}
         </div>
@@ -181,7 +281,17 @@ export function Landing() {
 
               {mode === "map" && (
                 <div id="panel-map" role="tabpanel" aria-labelledby="tab-map">
-                  <p className="mb-3 text-sm text-muted">Zoom in on the map and click your home. Prefer the keyboard? Use the address or districts tabs.</p>
+                  <p className="mb-3 text-sm text-muted" aria-live="polite">
+                    {stage === "nation" && "Step 1 of 3: click your state on the map."}
+                    {stage === "state" && "Step 2 of 3: click near your home. Use the map's breadcrumb to go back."}
+                    {stage === "district" && "Step 3 of 3: check the pin. Drag it or click elsewhere to adjust."}{" "}
+                    Prefer the keyboard? Use the address or districts tabs.
+                  </p>
+                  {found && stage === "district" && (
+                    <div className="mb-3">
+                      <LocationSummary loc={found.loc} />
+                    </div>
+                  )}
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <p className="font-mono text-xs text-ink" aria-live="polite">
                       {pick ? `Selected ${pick.lat.toFixed(4)}, ${pick.lng.toFixed(4)}` : "No location selected yet."}

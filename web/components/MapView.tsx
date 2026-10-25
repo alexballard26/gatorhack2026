@@ -3,6 +3,9 @@ import { useEffect, useRef, useState } from "react";
 import maplibregl, { type ExpressionSpecification, type GeoJSONSource, type Map as MLMap } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { DistrictBoundaries } from "@/lib/types";
+import { CONUS_BOUNDS, SHORT_LABEL, STATES, STATE_BY_ABBR } from "@/lib/geo/states";
+
+export type MapStage = "nation" | "state" | "district";
 
 type LayerKey = keyof DistrictBoundaries;
 
@@ -37,17 +40,7 @@ const BASE_PAINT: Record<string, [string, string | number][]> = {
   water_name: [["text-color", "#4f655b"], ["text-halo-color", "#070d0b"]],
 };
 
-/** Hide admin-1 labels outside the US (rough CONUS + Alaska + Hawaii polygons; label points sit near state centroids). */
-const US_ZONE = {
-  type: "Polygon" as const,
-  coordinates: [[[-125, 48.6], [-123.2, 48.9], [-95, 49.2], [-89.5, 48.2], [-84.5, 46.9], [-82.5, 45.8], [-83, 42.3], [-79, 43.4], [-75, 44.9], [-71, 45.2], [-67.4, 47.2], [-66.9, 44.6], [-70, 41.2], [-75.5, 35], [-80, 31.5], [-80, 25], [-82, 24.8], [-85, 29.2], [-90, 29], [-97, 25.9], [-99, 26.4], [-101, 29.7], [-104.6, 29.4], [-106.6, 31.8], [-111, 31.3], [-114.8, 32.5], [-117.1, 32.5], [-125, 40], [-125, 48.6]]],
-};
-const US_EXTRA = [
-  { type: "Polygon" as const, coordinates: [[[-170, 51], [-130, 51], [-130, 71.5], [-170, 71.5], [-170, 51]]] }, // Alaska
-  { type: "Polygon" as const, coordinates: [[[-161, 18.5], [-154, 18.5], [-154, 22.5], [-161, 22.5], [-161, 18.5]]] }, // Hawaii
-];
 const isPoint: ExpressionSpecification = ["match", ["geometry-type"], ["MultiPoint", "Point"], true, false];
-const inUS: ExpressionSpecification = ["any", ["within", US_ZONE], ...US_EXTRA.map((g) => ["within", g] as ExpressionSpecification)];
 const LABEL_FONT = ["Noto Sans Regular"]; // only stack the OpenFreeMap glyph server provides for this style
 const NO_MARITIME: ExpressionSpecification = ["!=", ["coalesce", ["get", "maritime"], 0], 1];
 
@@ -106,32 +99,18 @@ function darken(map: MLMap) {
     }
   });
 
+  // Roads now sit above the district overlays (so bridges cross water correctly): keep them subtle
+  for (const id of ["highway_path", "highway_minor", "highway_major_casing", "highway_major_inner", "highway_motorway_casing", "highway_motorway_inner", "railway", "railway_minor"]) {
+    if (has(id)) attempt(() => map.setPaintProperty(id, "line-opacity", 0.5));
+  }
   // Keep low-zoom highways quiet so they don't compete with labels/boundaries
   for (const id of ["highway_motorway_subtle", "highway_major_subtle"]) {
     if (has(id)) attempt(() => map.setPaintProperty(id, "line-opacity", ["interpolate", ["linear"], ["zoom"], 3, 0.08, 6, 0.3, 9, 0.8]));
   }
 
   // --- labels ---
-  const halo = { "text-halo-blur": 0, "text-halo-width": 1.4 };
   for (const id of ["place_country_major", "place_country_minor", "place_country_other"]) {
     if (has(id)) attempt(() => map.setLayoutProperty(id, "visibility", "none"));
-  }
-  if (has("place_state")) {
-    attempt(() => {
-      map.setFilter("place_state", ["all", isPoint, ["==", ["get", "class"], "state"], inUS]);
-      map.setLayerZoomRange("place_state", 3, 8);
-      setLayout(map, "place_state", {
-        "text-font": LABEL_FONT,
-        "text-size": ["interpolate", ["linear"], ["zoom"], 3, 10, 6, 11.5],
-        "text-transform": "uppercase",
-        "text-letter-spacing": 0.14,
-        "text-max-width": 7,
-        "text-padding": 6,
-        "symbol-avoid-edges": true,
-      });
-      setPaint(map, "place_state", { "text-color": "#7f948a", "text-halo-color": "#111d19", ...halo });
-      map.setPaintProperty("place_state", "text-opacity", ["interpolate", ["linear"], ["zoom"], 7, 1, 8, 0]);
-    });
   }
   // Cities: major only at low zoom; more as you zoom in. Title case, smaller than state labels at national zoom.
   const cityLayout = (size: unknown) => ({
@@ -172,25 +151,68 @@ function darken(map: MLMap) {
   }
 }
 
-/** Raise all text layers above the app's district overlays so labels stay readable over fills. */
-function raiseLabels(map: MLMap) {
-  const ids = (map.getStyle()?.layers ?? []).filter((l) => l.type === "symbol" && !l.id.startsWith("d-")).map((l) => l.id);
-  for (const id of ids) {
+/**
+ * Final layer order, bottom to top: land/landuse/buildings, basemap boundary lines, our d-* district layers,
+ * water + waterway (so every boundary stops at the shoreline), roads/bridges, then all labels.
+ */
+function orderLayers(map: MLMap) {
+  const layers = map.getStyle()?.layers ?? [];
+  const move = (id: string, before?: string) => {
     try {
-      map.moveLayer(id);
+      map.moveLayer(id, before);
+    } catch {
+      /* ignore */
+    }
+  };
+  const firstD = layers.find((l) => l.id.startsWith("d-"))?.id;
+  if (firstD) for (const l of layers) if (l.id.startsWith("boundary_")) move(l.id, firstD);
+  move("water");
+  move("waterway");
+  const src = (l: (typeof layers)[number]) => ("source-layer" in l ? l["source-layer"] : undefined);
+  for (const l of layers) if (l.type !== "symbol" && (src(l) === "transportation" || src(l) === "aeroway") && !l.id.startsWith("d-")) move(l.id);
+  for (const l of layers) if (l.type === "symbol") move(l.id);
+}
+
+/** Label visibility is driven by the app stage, not by zoom. */
+const CITY_IDS = ["place_city_large", "place_city", "place_town", "place_village", "place_suburb"];
+const MINOR_LABEL_IDS = ["place_other", "place_state", "place_country_major", "place_country_minor", "place_country_other"];
+const ROAD_LABEL_IDS = ["highway_name_other", "highway_name_motorway", "road_oneway", "road_oneway_opposite", "water_name"];
+
+function applyStage(map: MLMap, stage: MapStage, stateAbbr?: string) {
+  const vis = (id: string, on: boolean) => {
+    if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", on ? "visible" : "none");
+  };
+  const district = stage === "district";
+  for (const id of MINOR_LABEL_IDS) vis(id, false);
+  for (const id of CITY_IDS) vis(id, district);
+  for (const id of ROAD_LABEL_IDS) vis(id, district);
+  if (district) {
+    // Show every city/town, not just the big ones
+    try {
+      map.setFilter("place_city_large", ["all", isPoint, ["==", ["get", "class"], "city"]]);
+      map.setLayerZoomRange("place_city_large", 0, 14);
+      map.setLayerZoomRange("place_suburb", 10, 15);
     } catch {
       /* ignore */
     }
   }
+  vis("lbl-states", stage !== "district");
+  if (map.getLayer("lbl-states")) {
+    map.setFilter("lbl-states", stage === "state" && stateAbbr ? ["==", ["get", "abbr"], stateAbbr] : null);
+    map.setPaintProperty("lbl-states", "text-opacity", stage === "state" ? 0.55 : 1);
+  }
+  vis("lbl-cty", stage === "state");
+  vis("d-cty-line", stage !== "nation");
+  if (map.getLayer("d-cty-line")) map.setPaintProperty("d-cty-line", "line-opacity", stage === "state" ? 0.85 : 0.4);
 }
 
 const EMPTY: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
 
 /** Accent pin: glowing dot with an expanding ring (ring animation disabled under reduced motion via CSS). */
-function pinElement() {
+function pinElement(draggable: boolean) {
   const root = document.createElement("div");
   root.setAttribute("aria-hidden", "true");
-  root.style.cssText = "width:22px;height:22px;position:relative";
+  root.style.cssText = "width:22px;height:22px;position:relative" + (draggable ? ";touch-action:none" : "");
   const ring = document.createElement("span");
   ring.className = "bs-ping";
   ring.style.cssText = "position:absolute;inset:0;border-radius:50%;border:2px solid #7cf29a";
@@ -215,10 +237,23 @@ function bbox(features: GeoJSON.Feature[]): [number, number, number, number] | n
 }
 
 interface Props {
+  /** Camera stage, controlled by the parent: nation (contiguous US) > state > district. */
+  stage?: MapStage;
+  /** Postal code of the state to frame in the state stage (and to load county names for). */
+  stateAbbr?: string;
+  /** Label for the last breadcrumb, e.g. "District 3". */
+  districtLabel?: string;
+  /** Breadcrumb clicks: step out to this stage. */
+  onStageChange?: (stage: MapStage) => void;
+  /** Click on the national map (parent resolves which state, then moves to the state stage). */
+  onStateClick?: (lat: number, lng: number) => void;
+  /** Click (or pin drop) in the state or district stage. */
+  onPointClick?: (lat: number, lng: number) => void;
+  /** Alaska / Hawaii inset buttons on the national map. */
+  onStateJump?: (abbr: string) => void;
   boundaries?: DistrictBoundaries;
   point?: { lat: number; lng: number } | null;
-  onPick?: (lat: number, lng: number) => void;
-  /** Let the user drag the pin; calls onPick on drop. */
+  /** Let the user drag the pin; calls onPointClick on drop. */
   draggablePin?: boolean;
   showLegend?: boolean;
   labels?: Partial<Record<LayerKey, string>>;
@@ -226,27 +261,65 @@ interface Props {
   ariaLabel?: string;
   /** Render without the outer border/radius (for full-bleed hero use). The legend then floats over the map. */
   bare?: boolean;
-  /** Initial camera before any point or boundaries arrive. */
-  initialCenter?: [number, number];
-  initialZoom?: number;
-  /** Desktop only (container wider than 860px): keep the focus point clear of docked panels on the left. */
+  /** Desktop only (container wider than 860px): keep the focus area clear of docked panels on the left. */
   leftInset?: number;
 }
 
-export default function MapView({ boundaries, point, onPick, showLegend = true, draggablePin = false, labels, className = "h-80", ariaLabel = "Map of your districts", bare = false, initialCenter = [-96, 38.5], initialZoom = 3, leftInset = 0 }: Props) {
+const COUNTY_CACHE = new Map<string, GeoJSON.FeatureCollection>();
+const STATE_LABELS: GeoJSON.FeatureCollection = {
+  type: "FeatureCollection",
+  features: STATES.map((s) => ({
+    type: "Feature",
+    geometry: { type: "Point", coordinates: s.label },
+    properties: { abbr: s.abbr, name: s.name, short: SHORT_LABEL.has(s.abbr) },
+  })),
+};
+
+function countyPoints(fc: GeoJSON.FeatureCollection): GeoJSON.FeatureCollection {
+  const features: GeoJSON.Feature[] = [];
+  for (const f of fc.features) {
+    const p = f.properties ?? {};
+    const lat = parseFloat(p.INTPTLAT), lng = parseFloat(p.INTPTLON);
+    if (Number.isFinite(lat) && Number.isFinite(lng)) features.push({ type: "Feature", geometry: { type: "Point", coordinates: [lng, lat] }, properties: { name: p.BASENAME ?? p.NAME } });
+  }
+  return { type: "FeatureCollection", features };
+}
+
+const reducedMotion = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+export default function MapView({
+  stage = "nation",
+  stateAbbr,
+  districtLabel,
+  onStageChange,
+  onStateClick,
+  onPointClick,
+  onStateJump,
+  boundaries,
+  point,
+  showLegend = true,
+  draggablePin = false,
+  labels,
+  className = "h-80",
+  ariaLabel = "Map of your districts",
+  bare = false,
+  leftInset = 0,
+}: Props) {
   const el = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MLMap | null>(null);
   const markerRef = useRef<maplibregl.Marker | null>(null);
-  const onPickRef = useRef(onPick);
+  const firstFit = useRef(true);
+  const [sizeKey, setSizeKey] = useState("");
+  const cb = useRef({ stage, onStateClick, onPointClick });
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const [visible, setVisible] = useState<Record<LayerKey, boolean>>({ county: true, congressional: true, stateSenate: true, stateHouse: true, previousCongressional: false });
 
   useEffect(() => {
-    onPickRef.current = onPick;
+    cb.current = { stage, onStateClick, onPointClick };
     const map = mapRef.current;
-    if (map) map.getCanvas().style.cursor = onPick ? "crosshair" : "";
-  }, [onPick, ready]);
+    if (map) map.getCanvas().style.cursor = (stage === "nation" ? onStateClick : onPointClick) ? "crosshair" : "default";
+  }, [stage, onStateClick, onPointClick, ready]);
 
   useEffect(() => {
     if (!el.current) return;
@@ -255,19 +328,29 @@ export default function MapView({ boundaries, point, onPick, showLegend = true, 
       map = new maplibregl.Map({
         container: el.current,
         style: "https://tiles.openfreemap.org/styles/dark",
-        center: initialCenter,
-        zoom: initialZoom,
+        bounds: CONUS_BOUNDS,
         attributionControl: { compact: true },
+        // The camera is app-controlled: no free navigation, so the page can scroll over the map.
+        scrollZoom: false,
+        doubleClickZoom: false,
+        boxZoom: false,
+        touchZoomRotate: false,
+        touchPitch: false,
+        dragRotate: false,
+        dragPan: false,
+        keyboard: false,
       });
     } catch {
       setFailed(true);
       return;
     }
     mapRef.current = map;
-    if (leftInset && el.current.clientWidth > 860) map.setPadding({ left: leftInset, right: 0, top: 0, bottom: 0 });
-    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
     map.on("load", () => {
       darken(map);
+      // Faint county lines + names for the selected state (below the district layers)
+      map.addSource("cty", { type: "geojson", data: EMPTY });
+      map.addSource("cty-pts", { type: "geojson", data: EMPTY });
+      map.addLayer({ id: "d-cty-line", type: "line", source: "cty", paint: { "line-color": "#3b5c4d", "line-width": 0.9, "line-opacity": 0.85 } });
       for (const l of LAYERS) {
         map.addSource(`d-${l.key}`, { type: "geojson", data: EMPTY });
         map.addLayer({ id: `d-${l.key}-fill`, type: "fill", source: `d-${l.key}`, paint: { "fill-color": l.color, "fill-opacity": l.glow ? 0.07 : 0.03 } });
@@ -286,7 +369,39 @@ export default function MapView({ boundaries, point, onPick, showLegend = true, 
           paint: { "line-color": l.color, "line-width": l.width, ...(l.dash ? { "line-dasharray": l.dash } : {}) },
         });
       }
-      raiseLabels(map);
+      // Our own labels: all states (national stage), county names (state stage)
+      map.addSource("lbl-states-src", { type: "geojson", data: STATE_LABELS });
+      map.addLayer({
+        id: "lbl-states",
+        type: "symbol",
+        source: "lbl-states-src",
+        layout: {
+          // Zoom-based text-field would evaluate at the integer tile zoom, so choose by container width instead
+          "text-field": (el.current?.clientWidth ?? 0) < 700 ? ["get", "abbr"] : ["case", ["get", "short"], ["get", "abbr"], ["get", "name"]],
+          "text-font": LABEL_FONT,
+          "text-size": ["interpolate", ["linear"], ["zoom"], 2, 9, 3, 10.5, 4, 12.5, 6, 14],
+          "text-transform": "uppercase",
+          "text-letter-spacing": 0.1,
+          "text-max-width": 6,
+          "text-allow-overlap": true,
+          "text-ignore-placement": true,
+        },
+        paint: { "text-color": "#9bb0a6", "text-halo-color": "#0b1210", "text-halo-width": 1.5 },
+      });
+      map.addLayer({
+        id: "lbl-cty",
+        type: "symbol",
+        source: "cty-pts",
+        layout: {
+          "text-field": ["get", "name"],
+          "text-font": LABEL_FONT,
+          "text-size": ["interpolate", ["linear"], ["zoom"], 5, 10, 8, 12],
+          "text-max-width": 6,
+          "text-padding": 3,
+        },
+        paint: { "text-color": "#8fa39a", "text-halo-color": "#0b1210", "text-halo-width": 1.4 },
+      });
+      orderLayers(map);
       // Keep the (required) attribution but start collapsed so it doesn't cover the map on phones.
       const collapse = () => {
         const attrib = el.current?.querySelector(".maplibregl-ctrl-attrib");
@@ -297,71 +412,188 @@ export default function MapView({ boundaries, point, onPick, showLegend = true, 
       map.once("idle", collapse);
       setReady(true);
     });
-    map.on("click", (e) => onPickRef.current?.(e.lngLat.lat, e.lngLat.lng));
+    map.on("click", (e) => {
+      const { stage: st, onStateClick: sc, onPointClick: pc } = cb.current;
+      if (st === "nation") sc?.(e.lngLat.lat, e.lngLat.lng);
+      else pc?.(e.lngLat.lat, e.lngLat.lng);
+    });
+    // Re-frame the current stage when the container is resized (rotation, window resize)
+    let t: ReturnType<typeof setTimeout> | undefined;
+    const ro = new ResizeObserver(() => {
+      clearTimeout(t);
+      t = setTimeout(() => {
+        firstFit.current = true; // snap rather than animate
+        setSizeKey(`${el.current?.clientWidth}x${el.current?.clientHeight}`);
+      }, 200);
+    });
+    ro.observe(el.current);
     map.on("error", () => {
       /* tile/style hiccups should not crash the page */
     });
     return () => {
+      ro.disconnect();
+      clearTimeout(t);
       map.remove();
       mapRef.current = null;
       markerRef.current = null;
       setReady(false);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- map is created once; initial camera props are read only at mount
   }, []);
 
+  // Stage-driven label/layer visibility
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
-    const feats: GeoJSON.Feature[] = [];
+    applyStage(map, stage, stateAbbr);
+  }, [stage, stateAbbr, ready]);
+
+  // County lines + names for the selected state
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready) return;
+    const set = (fc: GeoJSON.FeatureCollection) => {
+      (map.getSource("cty") as GeoJSONSource | undefined)?.setData(fc);
+      (map.getSource("cty-pts") as GeoJSONSource | undefined)?.setData(fc === EMPTY ? EMPTY : countyPoints(fc));
+    };
+    if (!stateAbbr || stage === "nation") return;
+    const hit = COUNTY_CACHE.get(stateAbbr);
+    if (hit) {
+      set(hit);
+      return;
+    }
+    set(EMPTY);
+    const ctrl = new AbortController();
+    fetch(`/api/counties?state=${stateAbbr}`, { signal: ctrl.signal })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error("counties"))))
+      .then((fc: GeoJSON.FeatureCollection) => {
+        COUNTY_CACHE.set(stateAbbr, fc);
+        set(fc);
+      })
+      .catch(() => {
+        /* county names are a nice-to-have */
+      });
+    return () => ctrl.abort();
+  }, [stateAbbr, stage, ready]);
+
+  // District overlays
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready) return;
     for (const l of LAYERS) {
       const f = boundaries?.[l.key];
       (map.getSource(`d-${l.key}`) as GeoJSONSource | undefined)?.setData(f ? { type: "FeatureCollection", features: [f] } : EMPTY);
-      if (f && l.key !== "previousCongressional") feats.push(f);
-    }
-    const box = bbox(feats);
-    if (box) {
-      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      map.fitBounds([[box[0], box[1]], [box[2], box[3]]], { padding: 40, maxZoom: 12, duration: reduce ? 0 : 900 });
     }
   }, [boundaries, ready]);
 
+  // Camera: one framing per stage
+  const pointKey = !boundaries && point ? `${point.lat},${point.lng}` : "";
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready || !el.current) return;
+    const wide = el.current.clientWidth > 860;
+    const base = 24;
+    const padding = { top: base, bottom: base, right: base, left: base + (wide ? leftInset : 0) };
+    const duration = firstFit.current || reducedMotion() ? 0 : 1100;
+    firstFit.current = false;
+    const st = stateAbbr ? STATE_BY_ABBR[stateAbbr] : undefined;
+    const fit = (b: [number, number, number, number], extra: Record<string, unknown> = {}) =>
+      map.fitBounds([[b[0], b[1]], [b[2], b[3]]], { padding, duration, ...extra });
+    if (stage === "nation") fit([CONUS_BOUNDS[0][0], CONUS_BOUNDS[0][1], CONUS_BOUNDS[1][0], CONUS_BOUNDS[1][1]]);
+    else if (stage === "state") {
+      if (st) fit(st.bbox);
+    } else {
+      const f = boundaries?.congressional;
+      const box = bbox(f ? [f] : (Object.values(boundaries ?? {}).filter(Boolean) as GeoJSON.Feature[]));
+      if (box) fit(box, { maxZoom: 12 });
+      else if (point) map.easeTo({ center: [point.lng, point.lat], zoom: 10, padding, duration });
+      else if (st) fit(st.bbox);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- point is tracked through pointKey; leftInset is static per page
+  }, [stage, stateAbbr, boundaries, pointKey, ready, sizeKey]);
+
+  // Layer toggles (hidden entirely on the national map)
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
     for (const l of LAYERS) {
-      const v = visible[l.key] ? "visible" : "none";
+      const v = visible[l.key] && stage !== "nation" ? "visible" : "none";
       map.setLayoutProperty(`d-${l.key}-fill`, "visibility", v);
       map.setLayoutProperty(`d-${l.key}-line`, "visibility", v);
       if (l.glow) map.setLayoutProperty(`d-${l.key}-glow`, "visibility", v);
     }
-  }, [visible, ready]);
+  }, [visible, ready, stage]);
 
+  // Pin
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
     markerRef.current?.remove();
     markerRef.current = null;
     if (point) {
-      markerRef.current = new maplibregl.Marker({ element: pinElement(), draggable: draggablePin }).setLngLat([point.lng, point.lat]).addTo(map);
+      const mk = new maplibregl.Marker({ element: pinElement(draggablePin), draggable: draggablePin }).setLngLat([point.lng, point.lat]).addTo(map);
+      markerRef.current = mk;
       if (draggablePin) {
-        const mk = markerRef.current;
         mk.on("dragend", () => {
           const ll = mk.getLngLat();
-          onPickRef.current?.(ll.lat, ll.lng);
+          cb.current.onPointClick?.(ll.lat, ll.lng);
         });
       }
-      if (!boundaries) {
-        const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        map.easeTo({ center: [point.lng, point.lat], zoom: Math.max(map.getZoom(), 10), duration: reduce ? 0 : 700 });
-      }
     }
-  }, [point, ready, boundaries, draggablePin]);
+  }, [point, ready, draggablePin]);
 
   const present = LAYERS.filter((l) => boundaries?.[l.key]);
+  const stateName = stateAbbr ? STATE_BY_ABBR[stateAbbr]?.name : undefined;
+
+  const crumbs: { stage: MapStage; label: string }[] = [{ stage: "nation", label: "United States" }];
+  if (stateName && stage !== "nation") crumbs.push({ stage: "state", label: stateName });
+  if (stage === "district") crumbs.push({ stage: "district", label: districtLabel ?? "District" });
+
+  const breadcrumb = (
+    <nav aria-label="Map zoom level" className={`absolute top-2 z-10 max-w-[calc(100%-1rem)] rounded-panel border border-line bg-panel/95 px-2.5 py-1.5 font-mono text-xs ${bare ? "left-2 lg:left-auto lg:right-3" : "left-2"}`}>
+      <ol className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+        {crumbs.map((c, i) => {
+          const last = i === crumbs.length - 1;
+          return (
+            <li key={c.stage} className="flex items-center gap-1.5">
+              {i > 0 && (
+                <span aria-hidden="true" className="text-faint">
+                  &rsaquo;
+                </span>
+              )}
+              {last ? (
+                <span aria-current="location" className="font-bold text-ink">
+                  {c.label}
+                </span>
+              ) : (
+                <button type="button" onClick={() => onStageChange?.(c.stage)} className="text-accent underline underline-offset-4 hover:text-ink">
+                  {c.label}
+                </button>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
+  );
+
+  const insets =
+    stage === "nation" && onStateJump ? (
+      <div className="absolute bottom-9 right-2 z-10 flex gap-1.5">
+        {["Alaska", "Hawaii"].map((n) => (
+          <button
+            key={n}
+            type="button"
+            onClick={() => onStateJump(n === "Alaska" ? "AK" : "HI")}
+            className="rounded-chip border border-line-strong bg-panel/95 px-2 py-1 font-mono text-xs text-muted hover:border-accent hover:text-ink"
+          >
+            {n}
+          </button>
+        ))}
+      </div>
+    ) : null;
 
   const legend =
-    showLegend && present.length > 0 ? (
+    showLegend && stage === "district" && present.length > 0 ? (
       <fieldset className={bare ? "absolute bottom-6 left-2 z-10 max-w-[calc(100%-1rem)] rounded-panel border border-line bg-panel/95 px-3 py-2" : "border-t border-line bg-panel px-3 py-2.5"}>
         <legend className="sr-only">Toggle district layers</legend>
         <div className="flex flex-wrap gap-x-4 gap-y-1.5">
@@ -392,6 +624,8 @@ export default function MapView({ boundaries, point, onPick, showLegend = true, 
           <div ref={el} role="region" aria-label={ariaLabel} className={className} />
         )}
         {!ready && !failed && <div className="bs-skeleton pointer-events-none absolute inset-0" aria-hidden="true" />}
+        {!failed && breadcrumb}
+        {!failed && insets}
         {bare && legend}
       </div>
       {!bare && legend}

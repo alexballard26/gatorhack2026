@@ -1,11 +1,13 @@
 "use client";
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { parseQuery } from "@/lib/api";
+import { getDistricts, parseQuery } from "@/lib/api";
 import type { Race } from "@/lib/types";
 import { useBallotData } from "./useBallotData";
 import { useCountdown } from "./countdown";
 import { MapLazy } from "./MapLazy";
+import type { MapStage } from "./MapView";
 import { DistrictChangeNotice, LocationSummary, locationLabels } from "./LocationSummary";
 import { Chip, EmptyState, ErrorBox, LiveDot, PartyBadge, Panel, ProvenanceBadge, SectionLabel, Skeleton, buttonClass } from "./ui";
 
@@ -71,6 +73,29 @@ export function BallotPage() {
   const q = parseQuery(sp);
   const qs = sp.toString();
   const data = useBallotData(q);
+  const [stage, setStage] = useState<MapStage>("district");
+  const [stateAbbr, setStateAbbr] = useState<string | undefined>();
+  const lookSeq = useRef(0);
+  const locState = data.location?.state;
+  const locLat = data.location?.lat;
+  const locLng = data.location?.lng;
+  // A new location always reopens the map at district stage
+  useEffect(() => {
+    lookSeq.current++;
+    setStage("district");
+    setStateAbbr(locState || undefined);
+  }, [locState, locLat, locLng]);
+  const onStateClick = async (lat: number, lng: number) => {
+    const seq = ++lookSeq.current;
+    try {
+      const d = await getDistricts({ lat: lat.toFixed(5), lng: lng.toFixed(5) });
+      if (seq !== lookSeq.current) return;
+      setStateAbbr(d.location.state);
+      setStage("state");
+    } catch {
+      /* clicked outside a US state: ignore */
+    }
+  };
 
   if (data.status === "empty")
     return (
@@ -82,6 +107,8 @@ export function BallotPage() {
   const loc = data.location;
   const labels = loc ? locationLabels(loc) : undefined;
   const point = loc?.lat != null && loc?.lng != null ? { lat: loc.lat, lng: loc.lng } : null;
+  const cdNum = loc?.congressionalDistrict;
+  const districtLabel = cdNum ? (cdNum === "AL" ? "At-large district" : `District ${cdNum}`) : undefined;
   const ballot = data.ballot;
   const loading = data.status === "loading";
   const editHref = loc
@@ -100,10 +127,24 @@ export function BallotPage() {
             point={point}
             labels={labels}
             draggablePin={Boolean(point)}
-            onPick={point ? (lat, lng) => router.replace(`/ballot?lat=${lat.toFixed(5)}&lng=${lng.toFixed(5)}`) : undefined}
+            stage={stage}
+            stateAbbr={stateAbbr}
+            districtLabel={districtLabel}
+            onStageChange={(s) => {
+              lookSeq.current++;
+              setStage(s);
+              if (s === "nation") setStateAbbr(undefined);
+              else if (s === "state") setStateAbbr(locState || stateAbbr);
+            }}
+            onStateClick={onStateClick}
+            onPointClick={(lat, lng) => router.replace(`/ballot?lat=${lat.toFixed(5)}&lng=${lng.toFixed(5)}`)}
+            onStateJump={(abbr) => {
+              setStateAbbr(abbr);
+              setStage("state");
+            }}
             leftInset={440}
             className="h-full min-h-72 w-full"
-            ariaLabel="Dark map of your districts. Drag the pin or click the map to adjust your location."
+            ariaLabel="Dark map of your districts. Drag the pin or click the map to adjust your location. Use the breadcrumb to zoom out."
           />
         </div>
 
