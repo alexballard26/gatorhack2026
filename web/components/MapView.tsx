@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import maplibregl, { type GeoJSONSource, type Map as MLMap } from "maplibre-gl";
+import maplibregl, { type ExpressionSpecification, type GeoJSONSource, type Map as MLMap } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { DistrictBoundaries } from "@/lib/types";
 
@@ -14,14 +14,14 @@ const LAYERS: { key: LayerKey; label: string; color: string; dash?: number[]; wi
   { key: "stateHouse", label: "State house district", color: "#c8f7a0", dash: [3, 2], width: 1.6 },
 ];
 
-/** Dark, low-contrast, green-tinted overrides applied on top of OpenFreeMap's "dark" style. */
-const BASE_PAINT: Record<string, [string, string][]> = {
-  background: [["background-color", "#0d1815"]],
-  water: [["fill-color", "#07100d"]],
-  waterway: [["line-color", "#0a1714"]],
-  landcover_wood: [["fill-color", "#10201a"]],
-  landuse_park: [["fill-color", "#10201a"]],
-  landuse_residential: [["fill-color", "#101d18"]],
+/** Land/water + feature paint overrides on top of OpenFreeMap's "dark" style (layer ids verified against the style JSON). */
+const BASE_PAINT: Record<string, [string, string | number][]> = {
+  background: [["background-color", "#111d19"]], // land
+  water: [["fill-color", "#060b09"]], // water; coastlines are the land/water edge, no separate coast line
+  waterway: [["line-color", "#070d0b"]],
+  landcover_wood: [["fill-color", "#112019"]],
+  landuse_park: [["fill-color", "#112019"]],
+  landuse_residential: [["fill-color", "#101b17"]],
   building: [["fill-color", "#17291f"]],
   highway_path: [["line-color", "#233a31"]],
   highway_minor: [["line-color", "#2b463a"]],
@@ -31,23 +31,155 @@ const BASE_PAINT: Record<string, [string, string][]> = {
   highway_motorway_casing: [["line-color", "#0b1210"]],
   highway_motorway_inner: [["line-color", "#4f7a68"]],
   highway_motorway_subtle: [["line-color", "#3b5c4d"]],
-  boundary_state: [["line-color", "#365248"]],
-  "boundary_country_z0-4": [["line-color", "#365248"]],
-  "boundary_country_z5-": [["line-color", "#365248"]],
-  highway_name_other: [["text-color", "#8fa79c"], ["text-halo-color", "#0b1210"]],
-  highway_name_motorway: [["text-color", "#8fa79c"], ["text-halo-color", "#0d1815"]],
-  water_name: [["text-color", "#5f786d"], ["text-halo-color", "#0b1210"]],
+  // Quiet road/water labels
+  highway_name_other: [["text-color", "#7f948a"], ["text-halo-color", "#0b1210"], ["text-halo-width", 1.2]],
+  highway_name_motorway: [["text-color", "#7f948a"], ["text-halo-color", "#0b1210"], ["text-halo-width", 1.2]],
+  water_name: [["text-color", "#4f655b"], ["text-halo-color", "#070d0b"]],
 };
 
+/** Hide admin-1 labels outside the US (rough CONUS + Alaska + Hawaii polygons; label points sit near state centroids). */
+const US_ZONE = {
+  type: "Polygon" as const,
+  coordinates: [[[-125, 48.6], [-123.2, 48.9], [-95, 49.2], [-89.5, 48.2], [-84.5, 46.9], [-82.5, 45.8], [-83, 42.3], [-79, 43.4], [-75, 44.9], [-71, 45.2], [-67.4, 47.2], [-66.9, 44.6], [-70, 41.2], [-75.5, 35], [-80, 31.5], [-80, 25], [-82, 24.8], [-85, 29.2], [-90, 29], [-97, 25.9], [-99, 26.4], [-101, 29.7], [-104.6, 29.4], [-106.6, 31.8], [-111, 31.3], [-114.8, 32.5], [-117.1, 32.5], [-125, 40], [-125, 48.6]]],
+};
+const US_EXTRA = [
+  { type: "Polygon" as const, coordinates: [[[-170, 51], [-130, 51], [-130, 71.5], [-170, 71.5], [-170, 51]]] }, // Alaska
+  { type: "Polygon" as const, coordinates: [[[-161, 18.5], [-154, 18.5], [-154, 22.5], [-161, 22.5], [-161, 18.5]]] }, // Hawaii
+];
+const isPoint: ExpressionSpecification = ["match", ["geometry-type"], ["MultiPoint", "Point"], true, false];
+const inUS: ExpressionSpecification = ["any", ["within", US_ZONE], ...US_EXTRA.map((g) => ["within", g] as ExpressionSpecification)];
+const LABEL_FONT = ["Noto Sans Regular"]; // only stack the OpenFreeMap glyph server provides for this style
+const NO_MARITIME: ExpressionSpecification = ["!=", ["coalesce", ["get", "maritime"], 0], 1];
+
+function setLayout(map: MLMap, id: string, props: Record<string, unknown>) {
+  for (const [k, v] of Object.entries(props)) map.setLayoutProperty(id, k, v);
+}
+function setPaint(map: MLMap, id: string, props: Record<string, unknown>) {
+  for (const [k, v] of Object.entries(props)) map.setPaintProperty(id, k, v);
+}
+
+/**
+ * Restyle the basemap into the dark-console look.
+ *  - Boundaries (source-layer "boundary"): solid thin faint lines, maritime=1 hidden (those run out over water and
+ *    never match the coastline), faded in with zoom so low-zoom generalization mismatch is hard to see.
+ *  - Labels: hierarchy state (small, spaced caps, muted) > city (title case, light) ; country + foreign admin-1 hidden.
+ */
 function darken(map: MLMap) {
-  const layers = map.getStyle()?.layers ?? [];
-  for (const l of layers) {
+  const has = (id: string) => !!map.getLayer(id);
+  const attempt = (fn: () => void) => {
     try {
-      const rules = BASE_PAINT[l.id] ?? (l.id.startsWith("place_") ? [["text-color", "#c3d3ca"], ["text-halo-color", "#0b1210"]] : null);
-      if (!rules) continue;
-      for (const [prop, val] of rules) map.setPaintProperty(l.id, prop, val);
+      fn();
     } catch {
       /* a style tweak should never break the map */
+    }
+  };
+
+  for (const [id, rules] of Object.entries(BASE_PAINT)) {
+    if (!has(id)) continue;
+    attempt(() => rules.forEach(([prop, val]) => map.setPaintProperty(id, prop, val)));
+  }
+
+  // --- boundaries ---
+  const fade = (lo: number, hi: number): ExpressionSpecification => ["interpolate", ["linear"], ["zoom"], 2, lo, 7, hi];
+  attempt(() => {
+    map.setFilter("boundary_state", ["all", ["==", ["get", "admin_level"], 4], NO_MARITIME]);
+    setPaint(map, "boundary_state", {
+      "line-color": "#4a6a5d",
+      "line-dasharray": null,
+      "line-blur": 0,
+      "line-opacity": fade(0.7, 0.95),
+      "line-width": ["interpolate", ["linear"], ["zoom"], 3, 0.8, 10, 1.2],
+    });
+    map.setLayoutProperty("boundary_state", "line-cap", "butt");
+  });
+  attempt(() => {
+    map.setFilter("boundary_country_z0-4", ["all", ["==", ["get", "admin_level"], 2], ["!", ["has", "claimed_by"]], NO_MARITIME]);
+    map.setFilter("boundary_country_z5-", ["all", ["==", ["get", "admin_level"], 2], NO_MARITIME]);
+    for (const id of ["boundary_country_z0-4", "boundary_country_z5-"]) {
+      setPaint(map, id, {
+        "line-color": "#365248",
+        "line-blur": 0,
+        "line-opacity": fade(0.55, 1),
+        "line-width": ["interpolate", ["linear"], ["zoom"], 3, 0.8, 10, 1.3],
+      });
+      map.setLayoutProperty(id, "line-cap", "butt");
+    }
+  });
+
+  // Keep low-zoom highways quiet so they don't compete with labels/boundaries
+  for (const id of ["highway_motorway_subtle", "highway_major_subtle"]) {
+    if (has(id)) attempt(() => map.setPaintProperty(id, "line-opacity", ["interpolate", ["linear"], ["zoom"], 3, 0.08, 6, 0.3, 9, 0.8]));
+  }
+
+  // --- labels ---
+  const halo = { "text-halo-blur": 0, "text-halo-width": 1.4 };
+  for (const id of ["place_country_major", "place_country_minor", "place_country_other"]) {
+    if (has(id)) attempt(() => map.setLayoutProperty(id, "visibility", "none"));
+  }
+  if (has("place_state")) {
+    attempt(() => {
+      map.setFilter("place_state", ["all", isPoint, ["==", ["get", "class"], "state"], inUS]);
+      map.setLayerZoomRange("place_state", 3, 8);
+      setLayout(map, "place_state", {
+        "text-font": LABEL_FONT,
+        "text-size": ["interpolate", ["linear"], ["zoom"], 3, 10, 6, 11.5],
+        "text-transform": "uppercase",
+        "text-letter-spacing": 0.14,
+        "text-max-width": 7,
+        "text-padding": 6,
+        "symbol-avoid-edges": true,
+      });
+      setPaint(map, "place_state", { "text-color": "#7f948a", "text-halo-color": "#111d19", ...halo });
+      map.setPaintProperty("place_state", "text-opacity", ["interpolate", ["linear"], ["zoom"], 7, 1, 8, 0]);
+    });
+  }
+  // Cities: major only at low zoom; more as you zoom in. Title case, smaller than state labels at national zoom.
+  const cityLayout = (size: unknown) => ({
+    "text-font": LABEL_FONT,
+    "text-size": size,
+    "text-transform": "none",
+    "text-letter-spacing": 0,
+    "text-max-width": 8,
+    "text-padding": 4,
+    "symbol-avoid-edges": true,
+    "icon-size": 0.3,
+  });
+  const cityPaint = { "text-color": "#a5b7ae", "text-halo-color": "#0b1210", "text-halo-width": 1.5, "text-halo-blur": 0, "icon-opacity": 0.5 };
+  if (has("place_city_large")) {
+    attempt(() => {
+      map.setFilter("place_city_large", ["all", isPoint, ["==", ["get", "class"], "city"], ["<=", ["get", "rank"], 3],
+        ["step", ["zoom"], ["<=", ["get", "rank"], 2], 4.5, ["<=", ["get", "rank"], 3]]]);
+      setLayout(map, "place_city_large", cityLayout(["interpolate", ["linear"], ["zoom"], 3, 9.5, 8, 12, 11, 14]));
+      setPaint(map, "place_city_large", cityPaint);
+    });
+  }
+  if (has("place_city")) {
+    attempt(() => {
+      map.setLayerZoomRange("place_city", 6, 14);
+      setLayout(map, "place_city", cityLayout(["interpolate", ["linear"], ["zoom"], 6, 9.5, 12, 12.5]));
+      setPaint(map, "place_city", cityPaint);
+    });
+  }
+  for (const id of ["place_town", "place_village", "place_suburb", "place_other"]) {
+    if (!has(id)) continue;
+    attempt(() => {
+      setLayout(map, id, { "text-font": LABEL_FONT, "text-transform": "none", "text-letter-spacing": 0, "text-padding": 4, "symbol-avoid-edges": true });
+      setPaint(map, id, { "text-color": "#8fa39a", "text-halo-color": "#0b1210", "text-halo-width": 1.3, "text-halo-blur": 0 });
+    });
+  }
+  for (const id of ["highway_name_other", "highway_name_motorway"]) {
+    if (has(id)) attempt(() => setLayout(map, id, { "text-transform": "none", "text-size": 10.5, "symbol-avoid-edges": true }));
+  }
+}
+
+/** Raise all text layers above the app's district overlays so labels stay readable over fills. */
+function raiseLabels(map: MLMap) {
+  const ids = (map.getStyle()?.layers ?? []).filter((l) => l.type === "symbol" && !l.id.startsWith("d-")).map((l) => l.id);
+  for (const id of ids) {
+    try {
+      map.moveLayer(id);
+    } catch {
+      /* ignore */
     }
   }
 }
@@ -154,6 +286,7 @@ export default function MapView({ boundaries, point, onPick, showLegend = true, 
           paint: { "line-color": l.color, "line-width": l.width, ...(l.dash ? { "line-dasharray": l.dash } : {}) },
         });
       }
+      raiseLabels(map);
       // Keep the (required) attribution but start collapsed so it doesn't cover the map on phones.
       const collapse = () => {
         const attrib = el.current?.querySelector(".maplibregl-ctrl-attrib");
