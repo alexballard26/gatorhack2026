@@ -3,7 +3,7 @@
 _Owned by the orchestrator. Updated as tasks are assigned and verified._
 
 ## Idea / approach
-**Working name:** BallotScout (rename anytime).
+**Working name:** Undervote (rename anytime).
 
 A voter enters their address (or picks districts / clicks the map) and sees every race on their Nov 3, 2026 ballot, on a map of their districts. Each race lists its candidates with neutral, cited profiles. Everything is **on-demand + cached**: a race is researched the first time any voter opens it; later viewers get the cached result.
 

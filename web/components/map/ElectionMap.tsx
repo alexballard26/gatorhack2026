@@ -1,5 +1,5 @@
 "use client";
-// BallotScout election map: a hand-built SVG cartographic console (d3-geo + Census cartographic boundaries). No tiles.
+// Undervote election map: a hand-built SVG cartographic console (d3-geo + Census cartographic boundaries). No tiles.
 // World layer = projected paths in a fixed coordinate frame, moved with one transform (scale + translate) so strokes stay
 // crisp (non-scaling-stroke) and zooms animate in ~650 ms. Labels, the pin and the HUD live in screen space.
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";

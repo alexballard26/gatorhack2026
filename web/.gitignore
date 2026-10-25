@@ -40,7 +40,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# BallotScout runtime data
+# Undervote runtime data
 /data/cache/*
 !/data/cache/showcase/
 /data/spend.json

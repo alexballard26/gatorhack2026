@@ -8,7 +8,7 @@ const grotesk = Space_Grotesk({ variable: "--font-space-grotesk", subsets: ["lat
 const mono = Space_Mono({ variable: "--font-space-mono", subsets: ["latin"], weight: ["400", "700"], display: "swap" });
 
 export const metadata: Metadata = {
-  title: "BallotScout: know your whole ballot",
+  title: "Undervote: know your whole ballot",
   description:
     "Find every race on your Nov 3, 2026 ballot and get neutral, cited information on every candidate, researched by Gemini Deep Research.",
 };

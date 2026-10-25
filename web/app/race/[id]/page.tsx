@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { RacePage } from "@/components/RacePage";
 import { PageSkeleton } from "@/components/ui";
 
-export const metadata = { title: "Race | BallotScout" };
+export const metadata = { title: "Race | Undervote" };
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

@@ -17,7 +17,7 @@ export function RacePage({ raceId }: { raceId: string }) {
 
   const raceTitle = race?.title;
   useEffect(() => {
-    document.title = raceTitle ? `${raceTitle} | BallotScout` : "Race | BallotScout";
+    document.title = raceTitle ? `${raceTitle} | Undervote` : "Race | Undervote";
   }, [raceTitle]);
 
   if (data.status === "empty")

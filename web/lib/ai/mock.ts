@@ -55,7 +55,7 @@ export function mockCandidate(raceId: string, candidateId: string, name: string)
 
 export function mockAsk(question: string): AskResponse {
   return {
-    answer: `MOCK ANSWER. You asked: "${question.slice(0, 120)}". According to mock sources, no verified information is available. BallotScout does not recommend candidates.`,
+    answer: `MOCK ANSWER. You asked: "${question.slice(0, 120)}". According to mock sources, no verified information is available. Undervote does not recommend candidates.`,
     sources: [src("Mock source", "https://example.com/mock-source")],
     model: "mock",
   };

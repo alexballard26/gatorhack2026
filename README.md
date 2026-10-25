@@ -1,10 +1,10 @@
-# BallotScout
+# Undervote
 
 A nonpartisan voter guide for the November 3, 2026 general election. Enter an address, see your districts on a map, and get a neutral, cited report on every race on your ballot.
 
 Built for Gator Hack V. The demo area is Alachua County, Florida. The architecture is designed to work nationwide.
 
-![BallotScout screenshot](docs/screenshot.png)
+![Undervote screenshot](docs/screenshot.png)
 <!-- TODO: add screenshot at docs/screenshot.png -->
 
 ## Features
@@ -88,7 +88,7 @@ Ballot source order: verified seed ballot, then cached AI list, then live Flash 
 
 ## Nonpartisan policy
 
-- BallotScout does not recommend or endorse candidates or positions.
+- Undervote does not recommend or endorse candidates or positions.
 - Every race and candidate profile uses the same structure and level of detail.
 - Every claim links to a source. Candidates without a source are removed.
 - Each ballot links to the official sample ballot so voters can verify it.

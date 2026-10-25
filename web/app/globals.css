@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* BallotScout design tokens ("Map-First Mission Control"). See web/DESIGN.md. */
+/* Undervote design tokens ("Map-First Mission Control"). See web/DESIGN.md. */
 @theme inline {
   --color-bg: #0b1210;
   --color-panel: #121c19;

@@ -6,6 +6,7 @@
 - Election day is **Tue, Nov 3** — 8 days away.
 - Most voters know who's running for governor. Almost nobody knows who's on the ballot for **county commission or school board** — so they skip those races or guess.
 - Those down-ballot seats decide local taxes, schools and growth — and there's often no voter guide at all.
+- "Election officials have a word for skipping a race: an **undervote**. We built **Undervote** so you never have to."
 
 ## 0:20–0:45 · Find your ballot (Design)
 - Home page → **Choose districts → "Fill in Alachua County, FL" → Show my ballot**.
@@ -35,7 +36,7 @@
 - "Every race, every candidate, cited — for the races nobody else covers."
 
 ## 2:50–3:00 · Close
-- "BallotScout. Know every name on your ballot."
+- "Undervote. Know every name on your ballot."
 - One honest line: "Built this weekend with AI agents — I directed the product, Claude Code agents wrote the code, and Gemini does the research."
 
 ## Don't

@@ -1,4 +1,4 @@
-# BallotScout design system: "Map-First Mission Control"
+# Undervote design system: "Map-First Mission Control"
 
 Dark, calm, cartographic console. Flat bordered panels, the map as hero, mono data accents, the AI visibly at work.
 Reference: `design/d-mission/index.html` (layout), `design/b-poster/index.html` (type). Tokens live in `app/globals.css` (`@theme`).

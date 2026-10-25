@@ -1,8 +1,8 @@
-# BallotScout
+# Undervote
 
 ## Short description
 
-BallotScout is a nonpartisan voter guide for the November 3, 2026 general election. Enter your address and it finds your congressional, state senate, and state house districts on a map, then lists the races you can vote in. Each race gets a neutral, side-by-side report written by Google's Gemini Deep Research agent, the first time anyone opens it. The report is cached, so every later voter gets it free. Candidates without a source are dropped. The demo covers Alachua County, Florida, using the official Florida Division of Elections candidate list (16 races, 43 candidates). County and city races are not covered yet.
+Undervote is a nonpartisan voter guide for the November 3, 2026 general election. Enter your address and it finds your congressional, state senate, and state house districts on a map, then lists the races you can vote in. Each race gets a neutral, side-by-side report written by Google's Gemini Deep Research agent, the first time anyone opens it. The report is cached, so every later voter gets it free. Candidates without a source are dropped. The demo covers Alachua County, Florida, using the official Florida Division of Elections candidate list (16 races, 43 candidates). County and city races are not covered yet.
 
 ## Inspiration
 
@@ -20,7 +20,7 @@ Every page follows the same neutrality rules. No candidate is recommended, and e
 
 ## How we built it
 
-BallotScout is a Next.js app (App Router, TypeScript, Tailwind CSS). The map uses MapLibre GL JS. Address lookup uses the U.S. Census Geocoder, with OpenStreetMap Nominatim as a fallback for addresses the Census geocoder misses. District boundaries come from Census TIGERweb.
+Undervote is a Next.js app (App Router, TypeScript, Tailwind CSS). The map uses MapLibre GL JS. Address lookup uses the U.S. Census Geocoder, with OpenStreetMap Nominatim as a fallback for addresses the Census geocoder misses. District boundaries come from Census TIGERweb.
 
 AI work runs on the server, so the API key never reaches the browser. Deep Research runs use the Gemini Interactions API over REST, started in the background and polled for status. Candidate lists, profiles, and Q&A use Gemini Flash with Google Search grounding. Results are cached as JSON. A spend ledger enforces a hard budget (`BUDGET_USD`, default $25) and a run cap (`MAX_DEEP_RESEARCH_RUNS`, default 5). Each Deep Research run reserves a $3 estimate before it starts.
 

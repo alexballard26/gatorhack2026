@@ -92,7 +92,7 @@ async function nominatim(address: string): Promise<{ lat: number; lng: number; d
   try {
     const res = await fetch(
       `https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=us&limit=1&q=${encodeURIComponent(address)}`,
-      { signal: AbortSignal.timeout(TIMEOUT_MS), headers: { "User-Agent": "BallotScout-hackathon/1.0", Accept: "application/json" } },
+      { signal: AbortSignal.timeout(TIMEOUT_MS), headers: { "User-Agent": "Undervote-hackathon/1.0", Accept: "application/json" } },
     );
     if (!res.ok) return undefined;
     const arr = await res.json();
