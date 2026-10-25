@@ -4,8 +4,6 @@ A nonpartisan voter guide for the November 3, 2026 general election. Enter an ad
 
 Built for Gator Hack V. The demo area is Alachua County, Florida. The architecture is designed to work nationwide.
 
-![Undervote screenshot](docs/screenshot.png)
-<!-- TODO: add screenshot at docs/screenshot.png -->
 
 ## Features
 
