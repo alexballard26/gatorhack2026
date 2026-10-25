@@ -1,36 +1,103 @@
 @import "tailwindcss";
 
-:root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+/* BallotScout design tokens ("Map-First Mission Control"). See web/DESIGN.md. */
+@theme inline {
+  --color-bg: #0b1210;
+  --color-panel: #121c19;
+  --color-raised: #17241f;
+  --color-line: #243830;
+  --color-line-strong: #365248;
+  --color-field: #5e7d70;
+  --color-ink: #e9f0ea;
+  --color-muted: #a5b7ae;
+  --color-faint: #7f948a;
+  --color-accent: #7cf29a;
+  --color-accent-ink: #06210f;
+  --color-accent-dim: rgba(124, 242, 154, 0.12);
+  --color-warn: #f2b544;
+  --color-warn-ink: #1a1203;
+  --color-warn-dim: rgba(242, 181, 68, 0.12);
+  --color-teal: #5fd4c4;
+  --color-lime: #c8f7a0;
+
+  --font-display: var(--font-archivo), "Arial Black", Impact, sans-serif;
+  --font-sans: var(--font-space-grotesk), system-ui, sans-serif;
+  --font-mono: var(--font-space-mono), ui-monospace, Menlo, Consolas, monospace;
+
+  --radius-panel: 6px;
+  --radius-chip: 3px;
+  --shadow-dock: 0 12px 32px rgba(0, 0, 0, 0.45);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+:root {
+  color-scheme: dark;
 }
 
 html {
-  color-scheme: light;
+  background: #0b1210;
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), system-ui, sans-serif;
+  background: #0b1210;
+  color: #e9f0ea;
+  font-family: var(--font-space-grotesk), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: #7cf29a;
+  color: #06210f;
 }
 
 :focus-visible {
-  outline: 3px solid #0f766e;
+  outline: 2px solid #7cf29a;
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
+a {
+  text-underline-offset: 3px;
+}
+
+/* Scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #365248 #0b1210;
+}
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #0b1210; }
+::-webkit-scrollbar-thumb { background: #365248; border-radius: 6px; border: 2px solid #0b1210; }
+::-webkit-scrollbar-thumb:hover { background: #4a6b5e; }
+
+/* Display headings: Archivo Black, tight */
+.bs-display {
+  font-family: var(--font-archivo), "Arial Black", Impact, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  line-height: 0.98;
+}
+
+/* MapLibre dark theming */
 .maplibregl-map {
   font-family: inherit;
+  background: #0b1210;
 }
+.maplibregl-ctrl-group {
+  background: #121c19 !important;
+  border: 1px solid #365248;
+  border-radius: 4px !important;
+  box-shadow: none !important;
+}
+.maplibregl-ctrl-group button + button { border-top: 1px solid #243830 !important; }
+.maplibregl-ctrl-group button .maplibregl-ctrl-icon { filter: invert(1) brightness(1.1); }
+.maplibregl-ctrl-attrib {
+  background: rgba(11, 18, 16, 0.85) !important;
+  color: #a5b7ae !important;
+  font-family: var(--font-space-mono), monospace;
+}
+.maplibregl-ctrl-attrib a { color: #a5b7ae !important; }
+.maplibregl-ctrl-attrib-button { filter: invert(1); }
 
 @keyframes bs-pulse {
   0%, 100% { opacity: 1; }
@@ -38,18 +105,25 @@ body {
 }
 .bs-pulse { animation: bs-pulse 1.4s ease-in-out infinite; }
 
+@keyframes bs-ping {
+  0% { transform: scale(0.6); opacity: 1; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+.bs-ping { animation: bs-ping 2.4s ease-out infinite; }
+
 @keyframes bs-shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
 .bs-skeleton {
-  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background: linear-gradient(90deg, #17241f 25%, #1f302a 50%, #17241f 75%);
   background-size: 200% 100%;
   animation: bs-shimmer 1.6s linear infinite;
-  border-radius: 6px;
+  border-radius: 4px;
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
