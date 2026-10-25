@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { MapLazy } from "./MapLazy";
-import type { MapStage } from "./MapView";
+import { ElectionMapLazy } from "./map/ElectionMapLazy";
+import type { MapStage } from "./map/types";
 import { LocationSummary } from "./LocationSummary";
 import { useCountdown } from "./countdown";
 import { Panel, SectionLabel, buttonClass, fieldLabelClass, inputClass } from "./ui";
@@ -20,7 +20,7 @@ function Countdown() {
     [c ? pad(c.seconds) : "--", "Sec"],
   ];
   return (
-    <Panel as="section" dock aria-labelledby="cd-h" className="pointer-events-auto">
+    <Panel as="section" aria-labelledby="cd-h">
       <SectionLabel as="h2" id="cd-h" className="mb-3">
         Election countdown
       </SectionLabel>
@@ -102,25 +102,21 @@ export function Landing() {
     if (to === "nation") setStateAbbr(undefined);
   };
 
-  /** Nation stage: which state was clicked? Ask the districts API (no state polygons shipped). */
-  const onStateClick = async (lat: number, lng: number) => {
-    const seq = ++lookSeq.current;
-    setLooking(true);
+  /** Nation/state stage: a state was clicked (or chosen in the select). */
+  const onStateSelect = (abbr: string) => {
+    if (mode !== "map") setMode("map"); // clicking the map from any tab switches to click-the-map mode
+    lookSeq.current++;
+    setLooking(false);
     setErr("");
-    try {
-      const d = await getDistricts({ lat: lat.toFixed(5), lng: lng.toFixed(5) });
-      if (seq !== lookSeq.current) return;
-      setStateAbbr(d.location.state);
-      setStage("state");
-    } catch {
-      if (seq === lookSeq.current) setErr("Click inside a US state to zoom in.");
-    } finally {
-      if (seq === lookSeq.current) setLooking(false);
-    }
+    setPick(null);
+    setFound(null);
+    setStateAbbr(abbr);
+    setStage("state");
   };
 
   /** State/district stage: drop the pin, look up the districts, frame the congressional district. */
   const onPointClick = async (lat: number, lng: number) => {
+    if (mode !== "map") setMode("map");
     const seq = ++lookSeq.current;
     setPick({ lat, lng });
     setLooking(true);
@@ -143,8 +139,6 @@ export function Landing() {
 
   const cd = found?.loc.congressionalDistrict;
   const districtLabel = cd ? (cd === "AL" ? "At-large district" : `District ${cd}`) : undefined;
-  const hint =
-    stage === "nation" ? "Click your state." : stage === "state" ? "Click near your home." : null;
   const onTabKey = (e: React.KeyboardEvent, i: number) => {
     let n = -1;
     if (e.key === "ArrowRight") n = (i + 1) % MODES.length;
@@ -181,55 +175,41 @@ export function Landing() {
 
   return (
     <div>
-      {/* Stage: map is the hero. Desktop = full-bleed map behind docked panels; mobile = map on top, panels stacked. */}
-      <section className="relative isolate border-b border-line lg:min-h-[800px]">
-        <div className="relative h-[300px] border-b border-line lg:absolute lg:inset-0 lg:z-0 lg:h-auto lg:border-b-0">
-          <MapLazy
-            bare
-            showLegend={false}
-            stage={stage}
-            stateAbbr={stateAbbr}
-            districtLabel={districtLabel}
-            boundaries={found?.boundaries}
-            point={pick}
-            draggablePin={mode === "map" && Boolean(pick)}
-            onStageChange={stepOut}
-            onStateClick={mode === "map" ? onStateClick : undefined}
-            onPointClick={mode === "map" ? onPointClick : undefined}
-            onStateJump={
-              mode === "map"
-                ? (abbr) => {
-                    setStateAbbr(abbr);
-                    setStage("state");
-                  }
-                : undefined
-            }
-            leftInset={690}
-            className="h-full min-h-72 w-full"
-            ariaLabel="Dark map of the United States. In click-the-map mode, click your state, then click near your home to drop a pin."
-          />
-          {mode === "map" && hint && (
-            <p className="pointer-events-none absolute left-3 top-12 z-10 rounded-chip border border-accent/60 bg-panel/95 px-2 py-1 font-mono text-xs text-accent lg:left-auto lg:right-3 lg:top-14" role="status">
-              {looking ? "Looking up\u2026" : hint}
+      {/* Stage: the map has its own clear region beside the content (desktop) or above the panels (mobile). */}
+      <section className="border-b border-line">
+        <div className="mx-auto grid max-w-[1360px] gap-4 px-4 py-6 sm:px-6 lg:grid-cols-[520px_minmax(0,1fr)] lg:gap-x-6 lg:py-10">
+          <div className="lg:col-start-1 lg:row-start-1">
+            <SectionLabel tone="accent">Nonpartisan voter intelligence</SectionLabel>
+            <h1 className="bs-display mt-3 text-[clamp(38px,5.4vw,60px)] text-ink">
+              Know every name <span className="text-accent">on your ballot.</span>
+            </h1>
+            <p className="mt-4 max-w-[46ch] text-[17px] leading-relaxed text-muted">
+              Find your districts, see every race and candidate, and watch an AI research agent compile sourced, side-by-side comparisons. No endorsements. No spin.
             </p>
-          )}
-        </div>
+          </div>
 
-        <div className="pointer-events-none relative z-10 mx-auto max-w-[1360px] px-4 py-6 sm:px-6 lg:py-14">
-          <div className="flex flex-col gap-4 lg:w-[520px]">
-            <div className="pointer-events-auto rounded-panel lg:bg-bg/60 lg:p-4 lg:backdrop-blur-sm">
-              <SectionLabel tone="accent">Nonpartisan voter intelligence</SectionLabel>
-              <h1 className="bs-display mt-3 text-[clamp(38px,5.4vw,60px)] text-ink">
-                Know every name <span className="text-accent">on your ballot.</span>
-              </h1>
-              <p className="mt-4 max-w-[46ch] text-[17px] leading-relaxed text-muted">
-                Find your districts, see every race and candidate, and watch an AI research agent compile sourced, side-by-side comparisons. No endorsements. No spin.
-              </p>
-            </div>
+          <div className="lg:sticky lg:top-[72px] lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:h-[min(720px,calc(100vh-96px))]">
+            <ElectionMapLazy
+              showLegend={false}
+              stage={stage}
+              stateAbbr={stateAbbr}
+              districtLabel={districtLabel}
+              boundaries={found?.boundaries}
+              point={pick}
+              busy={looking}
+              draggablePin={mode === "map" && Boolean(pick)}
+              onStageChange={stepOut}
+              onStateSelect={onStateSelect}
+              onPointClick={onPointClick}
+              className="lg:h-full"
+              ariaLabel="Map of the United States. In click-the-map mode, click your state, then click near your home to drop a pin. You can also choose a state from the list below the map."
+            />
+          </div>
 
+          <div className="flex flex-col gap-4 lg:col-start-1 lg:row-start-2">
             <Countdown />
 
-            <Panel as="section" dock aria-labelledby="st-h" className="pointer-events-auto">
+            <Panel as="section" aria-labelledby="st-h">
               <SectionLabel as="h2" id="st-h" className="mb-3">
                 Choose your starting point
               </SectionLabel>

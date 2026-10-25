@@ -78,26 +78,65 @@ a {
   line-height: 0.98;
 }
 
-/* MapLibre dark theming */
-.maplibregl-map {
-  font-family: inherit;
-  background: #0b1210;
+/* Election map (components/map/ElectionMap.tsx): SVG cartography. Strokes are non-scaling so lines stay crisp under zoom. */
+.em-root {
+  --em-ocean: #070c0b;
+  --em-land: #121c18;
+  --em-land-sel: #172a22;
+  --em-land-dim: #0b120f;
+  --em-line: #2b453a;
+  --em-coast: #5d8272;
+  background: var(--em-ocean);
 }
-.maplibregl-ctrl-group {
-  background: #121c19 !important;
-  border: 1px solid #365248;
-  border-radius: 4px !important;
-  box-shadow: none !important;
-}
-.maplibregl-ctrl-group button + button { border-top: 1px solid #243830 !important; }
-.maplibregl-ctrl-group button .maplibregl-ctrl-icon { filter: invert(1) brightness(1.1); }
-.maplibregl-ctrl-attrib {
-  background: rgba(11, 18, 16, 0.85) !important;
-  color: #a5b7ae !important;
-  font-family: var(--font-space-mono), monospace;
-}
-.maplibregl-ctrl-attrib a { color: #a5b7ae !important; }
-.maplibregl-ctrl-attrib-button { filter: invert(1); }
+.em-root svg { touch-action: pan-y pinch-zoom; user-select: none; -webkit-user-select: none; }
+.em-ocean { fill: var(--em-ocean); }
+.em-world path, .em-world rect { vector-effect: non-scaling-stroke; }
+.em-grat { fill: none; stroke: #16241f; stroke-width: 0.6; pointer-events: none; }
+.em-none { stroke: none; pointer-events: none; }
+.em-st { fill: var(--em-land); stroke: none; transition: fill 0.35s; animation: em-in 0.28s ease-out both; }
+.em-st.sel { fill: var(--em-land-sel); }
+.em-st.dim { fill: var(--em-land-dim); }
+.em-root[data-stage="nation"] .em-st { cursor: pointer; }
+.em-mesh { fill: none; stroke: var(--em-line); stroke-width: 0.75; pointer-events: none; transition: opacity 0.35s; }
+.em-mesh.quiet { opacity: 0.55; }
+.em-coast { fill: none; stroke: var(--em-coast); stroke-width: 1; stroke-linejoin: round; pointer-events: none; animation: em-in 0.6s ease-out both; }
+.em-cty { fill: transparent; stroke: #3a5a4d; stroke-width: 0.6; cursor: crosshair; }
+.em-ctys.faint .em-cty { stroke: #2d483d; stroke-width: 0.5; }
+.em-root[data-stage="district"] .em-cty { cursor: crosshair; }
+.em-sel-glow { fill: none; stroke: #7cf29a; stroke-width: 7; pointer-events: none; transition: opacity 0.4s; }
+.em-sel-line { fill: none; stroke: #7cf29a; stroke-width: 1.4; pointer-events: none; }
+.em-sel-line.quiet { opacity: 0.5; }
+.em-hit { fill: none; stroke: transparent; stroke-width: 18; stroke-linejoin: round; pointer-events: stroke; cursor: crosshair; }
+.em-hover { fill: rgba(124, 242, 154, 0.16); stroke: #7cf29a; stroke-width: 1.6; stroke-linejoin: round; pointer-events: none; }
+.em-hover-glow { fill: none; stroke: #7cf29a; stroke-width: 8; stroke-opacity: 0.22; stroke-linejoin: round; pointer-events: none; }
+.em-districts { pointer-events: none; }
+.em-cd-fill { fill: rgba(124, 242, 154, 0.12); stroke: none; }
+.em-cd-glow { fill: none; stroke: #7cf29a; stroke-width: 6; transition: opacity 0.4s; }
+.em-cd { fill: none; stroke: #7cf29a; stroke-width: 2.2; stroke-linejoin: round; }
+.em-ss-fill { fill: rgba(95, 212, 196, 0.04); stroke: none; }
+.em-ss { fill: none; stroke: #5fd4c4; stroke-width: 1.8; stroke-linejoin: round; }
+.em-sh { fill: rgba(200, 247, 160, 0.03); stroke: #c8f7a0; stroke-width: 1.3; stroke-dasharray: 5 3; }
+.em-old { fill: none; stroke: #8a9a92; stroke-width: 1.4; stroke-dasharray: 5 4; }
+.em-labels { transition: opacity 0.3s ease-out; }
+.em-lbl { font-family: var(--font-space-grotesk), system-ui, sans-serif; font-weight: 500; fill: #9db3a8; paint-order: stroke; stroke: #070c0b; stroke-width: 3px; stroke-linejoin: round; letter-spacing: 0.09em; }
+.em-lbl.mono { font-family: var(--font-space-mono), ui-monospace, monospace; font-weight: 700; letter-spacing: 0.04em; }
+.em-lbl.faint { fill: #5e7d70; font-weight: 400; }
+.em-lbl.cty { letter-spacing: 0.02em; fill: #8fa89c; }
+.em-lbl.place { letter-spacing: 0.01em; font-weight: 500; fill: #e9f0ea; }
+.em-labels .outside .em-lbl.place { fill: #8fa39a; }
+.em-place-dot { fill: #e9f0ea; stroke: #070c0b; stroke-width: 1.5; paint-order: stroke; }
+.em-labels .outside .em-place-dot { fill: #8fa39a; }
+.em-leader { fill: none; stroke: #4a6b5e; stroke-width: 0.8; }
+.em-pin.drag { cursor: grab; touch-action: none; }
+.em-pin-ring { fill: none; stroke: #7cf29a; stroke-width: 2; transform-box: fill-box; transform-origin: center; animation: bs-ping 2.4s ease-out infinite; }
+.em-pin-halo { fill: rgba(124, 242, 154, 0.28); }
+.em-pin-dot { fill: #7cf29a; stroke: #0b1210; stroke-width: 2; }
+.em-corner { position: absolute; z-index: 5; width: 12px; height: 12px; border-color: #365248; pointer-events: none; }
+.em-corner.tl { left: 0; top: 0; border-left-width: 1px; border-top-width: 1px; }
+.em-corner.tr { right: 0; top: 0; border-right-width: 1px; border-top-width: 1px; }
+.em-corner.bl { left: 0; bottom: 0; border-left-width: 1px; border-bottom-width: 1px; }
+.em-corner.br { right: 0; bottom: 0; border-right-width: 1px; border-bottom-width: 1px; }
+@keyframes em-in { from { opacity: 0; transform: translateY(0); } to { opacity: 1; } }
 
 @keyframes bs-pulse {
   0%, 100% { opacity: 1; }

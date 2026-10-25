@@ -2,12 +2,12 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { getDistricts, parseQuery } from "@/lib/api";
+import { parseQuery } from "@/lib/api";
 import type { Race } from "@/lib/types";
 import { useBallotData } from "./useBallotData";
 import { useCountdown } from "./countdown";
-import { MapLazy } from "./MapLazy";
-import type { MapStage } from "./MapView";
+import { ElectionMapLazy } from "./map/ElectionMapLazy";
+import type { MapStage } from "./map/types";
 import { DistrictChangeNotice, LocationSummary, locationLabels } from "./LocationSummary";
 import { Chip, EmptyState, ErrorBox, LiveDot, PartyBadge, Panel, ProvenanceBadge, SectionLabel, Skeleton, buttonClass } from "./ui";
 
@@ -85,16 +85,10 @@ export function BallotPage() {
     setStage("district");
     setStateAbbr(locState || undefined);
   }, [locState, locLat, locLng]);
-  const onStateClick = async (lat: number, lng: number) => {
-    const seq = ++lookSeq.current;
-    try {
-      const d = await getDistricts({ lat: lat.toFixed(5), lng: lng.toFixed(5) });
-      if (seq !== lookSeq.current) return;
-      setStateAbbr(d.location.state);
-      setStage("state");
-    } catch {
-      /* clicked outside a US state: ignore */
-    }
+  const onStateSelect = (abbr: string) => {
+    lookSeq.current++;
+    setStateAbbr(abbr);
+    setStage("state");
   };
 
   if (data.status === "empty")
@@ -118,39 +112,33 @@ export function BallotPage() {
 
   return (
     <div>
-      {/* Stage: map is the hero. Desktop = map behind docked panels; mobile = map on top, panels stacked below. */}
-      <section aria-label="Your districts and map" className="relative isolate border-b border-line lg:h-[700px]">
-        <div className="relative h-[460px] border-b border-line sm:h-[480px] lg:absolute lg:inset-0 lg:z-0 lg:h-auto lg:border-b-0">
-          <MapLazy
-            bare
-            boundaries={data.boundaries}
-            point={point}
-            labels={labels}
-            draggablePin={Boolean(point)}
-            stage={stage}
-            stateAbbr={stateAbbr}
-            districtLabel={districtLabel}
-            onStageChange={(s) => {
-              lookSeq.current++;
-              setStage(s);
-              if (s === "nation") setStateAbbr(undefined);
-              else if (s === "state") setStateAbbr(locState || stateAbbr);
-            }}
-            onStateClick={onStateClick}
-            onPointClick={(lat, lng) => router.replace(`/ballot?lat=${lat.toFixed(5)}&lng=${lng.toFixed(5)}`)}
-            onStateJump={(abbr) => {
-              setStateAbbr(abbr);
-              setStage("state");
-            }}
-            leftInset={440}
-            className="h-full min-h-72 w-full"
-            ariaLabel="Dark map of your districts. Drag the pin or click the map to adjust your location. Use the breadcrumb to zoom out."
-          />
-        </div>
+      {/* Stage: the map has its own clear region beside the panels (desktop) or above them (mobile). */}
+      <section aria-label="Your districts and map" className="border-b border-line">
+        <div className="mx-auto grid max-w-[1360px] gap-4 px-4 py-4 sm:px-6 lg:grid-cols-[400px_minmax(0,1fr)] lg:gap-6 lg:py-6">
+          <div className="lg:sticky lg:top-[72px] lg:col-start-2 lg:row-start-1 lg:h-[min(720px,calc(100vh-96px))]">
+            <ElectionMapLazy
+              boundaries={data.boundaries}
+              point={point}
+              labels={labels}
+              draggablePin={Boolean(point)}
+              stage={stage}
+              stateAbbr={stateAbbr}
+              districtLabel={districtLabel}
+              onStageChange={(s) => {
+                lookSeq.current++;
+                setStage(s);
+                if (s === "nation") setStateAbbr(undefined);
+                else if (s === "state") setStateAbbr(locState || stateAbbr);
+              }}
+              onStateSelect={onStateSelect}
+              onPointClick={(lat, lng) => router.replace(`/ballot?lat=${lat.toFixed(5)}&lng=${lng.toFixed(5)}`)}
+              className="lg:h-full"
+              ariaLabel="Map of your districts. Drag the pin or click the map to adjust your location. Use the breadcrumb to zoom out."
+            />
+          </div>
 
-        <div className="pointer-events-none relative z-10 mx-auto flex max-w-[1360px] flex-col gap-4 px-4 py-4 sm:px-6 lg:h-full lg:flex-row lg:justify-between lg:py-6">
-          <div className="flex flex-col gap-4 lg:w-[400px]">
-            <Panel as="section" dock aria-labelledby="loc-h" className="pointer-events-auto">
+          <div className="flex flex-col gap-4 lg:col-start-1 lg:row-start-1">
+            <Panel as="section" aria-labelledby="loc-h">
               <div className="flex items-center justify-between gap-3">
                 <SectionLabel tone="accent">{ballot?.electionName ?? "General election"}</SectionLabel>
                 <CountdownChip />
@@ -179,12 +167,12 @@ export function BallotPage() {
             </Panel>
 
             {loc && (
-              <div className="pointer-events-auto">
+              <div>
                 <DistrictChangeNotice loc={loc} boundaries={data.boundaries} />
               </div>
             )}
 
-            <Panel dock className="pointer-events-auto !p-3 sm:!p-3">
+            <Panel className="!p-3 sm:!p-3">
               {point ? (
                 <p className="text-sm leading-relaxed text-muted">
                   Not quite right? Drag the pin or click the map to adjust. Addresses can be placed approximately, especially near district borders.
@@ -201,11 +189,8 @@ export function BallotPage() {
               {point && loading && !data.boundaries && <p className="mt-1 font-mono text-xs text-muted">Loading district boundaries&hellip;</p>}
               {point && data.status === "ready" && !data.boundaries && <p className="mt-1 font-mono text-xs text-muted">District boundaries are not available for this location.</p>}
             </Panel>
-          </div>
-
-          <div className="flex flex-col justify-end gap-4 lg:w-[360px] lg:pb-8">
             {loading && (
-              <Panel dock className="pointer-events-auto" role="status" aria-live="polite">
+              <Panel role="status" aria-live="polite">
                 <p className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-[0.12em] text-accent">
                   <LiveDot /> Working
                 </p>
@@ -213,12 +198,12 @@ export function BallotPage() {
               </Panel>
             )}
             {data.status === "error" && (
-              <div className="pointer-events-auto">
+              <div>
                 <ErrorBox title="We couldn't load your ballot" message={data.error ?? "Unknown error"} onRetry={data.retry} />
               </div>
             )}
             {ballot && (
-              <Panel as="section" dock aria-label="Where this ballot comes from" className="pointer-events-auto">
+              <Panel as="section" aria-label="Where this ballot comes from">
                 <ProvenanceBadge provenance={ballot.provenance} />
                 {ballot.verifyUrl && (
                   <p className="mt-3">
