@@ -4,9 +4,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { parseQuery } from "@/lib/api";
 import type { Race } from "@/lib/types";
 import { useBallotData } from "./useBallotData";
+import { useCountdown } from "./countdown";
 import { MapLazy } from "./MapLazy";
 import { DistrictChangeNotice, LocationSummary, locationLabels } from "./LocationSummary";
-import { EmptyState, ErrorBox, ProvenanceBadge, Skeleton } from "./ui";
+import { Chip, EmptyState, ErrorBox, LiveDot, PartyBadge, Panel, ProvenanceBadge, SectionLabel, Skeleton, buttonClass } from "./ui";
 
 const GROUPS: { title: string; match: (r: Race) => boolean }[] = [
   { title: "Federal", match: (r) => r.kind === "candidate" && r.level === "federal" },
@@ -19,27 +20,49 @@ const GROUPS: { title: string; match: (r: Race) => boolean }[] = [
   { title: "Ballot measures", match: (r) => r.kind === "measure" },
 ];
 
+const SHOWN = 4;
+
 export function RaceRow({ race, qs }: { race: Race; qs: string }) {
-  const names = race.candidates.map((c) => c.name);
-  const preview = names.length ? names.slice(0, 3).join(", ") + (names.length > 3 ? ` +${names.length - 3} more` : "") : race.measureSummary;
-  const kind = race.kind === "measure" ? "Ballot measure" : race.kind === "retention" ? "Retention vote" : `${race.candidates.length} candidates`;
+  const kind =
+    race.kind === "measure" ? "Measure" : race.kind === "retention" ? "Retention" : `${race.candidates.length} ${race.candidates.length === 1 ? "candidate" : "candidates"}`;
+  const shown = race.candidates.slice(0, SHOWN);
+  const more = race.candidates.length - shown.length;
   return (
-    <li>
+    <li className="flex">
       <Link
         href={`/race/${encodeURIComponent(race.id)}?${qs}`}
-        className="group block rounded-xl border border-slate-200 bg-white p-4 hover:border-teal-600 hover:shadow-sm"
+        className="group flex w-full flex-col rounded-panel border border-line bg-panel p-4 no-underline hover:border-accent hover:bg-raised sm:px-5"
       >
         <div className="flex items-start justify-between gap-3">
-          <h4 className="font-semibold text-slate-900 group-hover:text-teal-900">{race.title}</h4>
-          <span className="shrink-0 text-teal-800" aria-hidden="true">
-            &rarr;
-          </span>
+          <h3 className="font-sans text-[17px] font-bold leading-snug text-ink">{race.title}</h3>
+          <span className="shrink-0 rounded-chip border border-line-strong bg-bg px-2 py-0.5 font-mono text-xs font-bold text-muted">{kind}</span>
         </div>
-        <p className="mt-0.5 text-xs font-medium uppercase tracking-wide text-slate-600">{kind}</p>
-        {preview && <p className="mt-1 line-clamp-2 text-sm text-slate-700">{preview}</p>}
+        {race.description && <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-muted">{race.description}</p>}
+        {shown.length > 0 ? (
+          <ul className="mt-3 border-t border-line">
+            {shown.map((c) => (
+              <li key={c.name} className="flex items-center justify-between gap-3 border-b border-line py-1.5 text-[15px] text-ink">
+                <span className="min-w-0 break-words">{c.name}</span>
+                <PartyBadge party={c.party} />
+              </li>
+            ))}
+            {more > 0 && <li className="py-1.5 font-mono text-xs text-muted">+{more} more</li>}
+          </ul>
+        ) : (
+          race.measureSummary && <p className="mt-3 line-clamp-3 border-t border-line pt-3 text-sm text-muted">{race.measureSummary}</p>
+        )}
+        <span className="mt-auto pt-4 font-mono text-[13px] font-bold text-accent group-hover:underline group-hover:underline-offset-4">
+          Open race <span aria-hidden="true">&rarr;</span>
+        </span>
       </Link>
     </li>
   );
+}
+
+function CountdownChip() {
+  const c = useCountdown();
+  if (!c) return <Chip className="opacity-0">--</Chip>;
+  return <Chip accent>{c.passed ? "Polls open" : `T-${c.days}d ${String(c.hours).padStart(2, "0")}h`}</Chip>;
 }
 
 export function BallotPage() {
@@ -51,106 +74,167 @@ export function BallotPage() {
 
   if (data.status === "empty")
     return (
-      <div className="px-4 py-12">
+      <div className="mx-auto max-w-[1360px] px-4 py-12 sm:px-6">
         <EmptyState title="Tell us where you vote">Enter an address, click the map, or choose your districts to see your ballot.</EmptyState>
       </div>
     );
 
-  const labels = data.location ? locationLabels(data.location) : undefined;
-  const point = data.location?.lat != null && data.location?.lng != null ? { lat: data.location.lat, lng: data.location.lng } : null;
+  const loc = data.location;
+  const labels = loc ? locationLabels(loc) : undefined;
+  const point = loc?.lat != null && loc?.lng != null ? { lat: loc.lat, lng: loc.lng } : null;
   const ballot = data.ballot;
+  const loading = data.status === "loading";
+  const editHref = loc
+    ? `/?${new URLSearchParams({ mode: "manual", state: loc.state, county: loc.county ?? "", cd: loc.congressionalDistrict ?? "", sd: loc.stateSenateDistrict ?? "", hd: loc.stateHouseDistrict ?? "", place: loc.place ?? "" })}`
+    : "/";
+  const groups = ballot ? GROUPS.map((g) => ({ ...g, races: ballot.races.filter(g.match) })).filter((g) => g.races.length) : [];
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6">
-      <div className="mb-5">
-        <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">{ballot?.electionName ?? "Your ballot"}</h1>
-        <p className="mt-1 text-slate-700">
-          {data.location?.address ? `${data.location.address}` : "Election day: Tue, Nov 3, 2026"}
-        </p>
-        <div className="mt-3">{data.location ? <LocationSummary loc={data.location} /> : <Skeleton className="h-7 w-72" />}</div>
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
-        <div className="lg:sticky lg:top-4 lg:order-2 lg:self-start">
+    <div>
+      {/* Stage: map is the hero. Desktop = map behind docked panels; mobile = map on top, panels stacked below. */}
+      <section aria-label="Your districts and map" className="relative isolate border-b border-line lg:h-[700px]">
+        <div className="relative h-[460px] border-b border-line sm:h-[480px] lg:absolute lg:inset-0 lg:z-0 lg:h-auto lg:border-b-0">
           <MapLazy
+            bare
             boundaries={data.boundaries}
             point={point}
             labels={labels}
             draggablePin={Boolean(point)}
-            onPick={point ? (lat, lng) => router.replace(`/ballot?lat=${lat.toFixed(5)}&lng=${lng.toFixed(5)}`) : undefined} className="h-72 sm:h-96 lg:h-[28rem]" />
-          {point && (
-            <p className="mt-2 text-sm text-slate-700">
-              Not quite right? Drag the pin or click the map to adjust. Addresses can be placed approximately, especially near district borders.
-            </p>
-          )}
-          {data.location && (
-            <p className="mt-1 text-sm">
-              <Link
-                href={`/?${new URLSearchParams({ mode: "manual", state: data.location.state, county: data.location.county ?? "", cd: data.location.congressionalDistrict ?? "", sd: data.location.stateSenateDistrict ?? "", hd: data.location.stateHouseDistrict ?? "", place: data.location.place ?? "" })}`}
-                className="font-medium text-teal-800 underline underline-offset-2"
-              >
-                Edit districts
-              </Link>
-            </p>
-          )}
-          {data.status === "loading" && !data.boundaries && <p className="mt-2 text-sm text-slate-600">Loading district boundaries&hellip;</p>}
-          {data.status === "ready" && !data.boundaries && <p className="mt-2 text-sm text-slate-600">District boundaries are not available for this location.</p>}
+            onPick={point ? (lat, lng) => router.replace(`/ballot?lat=${lat.toFixed(5)}&lng=${lng.toFixed(5)}`) : undefined}
+            leftInset={440}
+            className="h-full min-h-72 w-full"
+            ariaLabel="Dark map of your districts. Drag the pin or click the map to adjust your location."
+          />
         </div>
 
-        <div className="lg:order-1">
-          {data.location && <DistrictChangeNotice loc={data.location} boundaries={data.boundaries} />}
-          {data.status === "loading" && (
-            <div role="status" aria-live="polite">
-              <p className="mb-3 text-sm font-medium text-teal-900">{data.stage}</p>
-              <div className="space-y-3">
-                {[0, 1, 2, 3].map((i) => (
-                  <Skeleton key={i} className="h-20 w-full" />
-                ))}
+        <div className="pointer-events-none relative z-10 mx-auto flex max-w-[1360px] flex-col gap-4 px-4 py-4 sm:px-6 lg:h-full lg:flex-row lg:justify-between lg:py-6">
+          <div className="flex flex-col gap-4 lg:w-[400px]">
+            <Panel as="section" dock aria-labelledby="loc-h" className="pointer-events-auto">
+              <div className="flex items-center justify-between gap-3">
+                <SectionLabel tone="accent">{ballot?.electionName ?? "General election"}</SectionLabel>
+                <CountdownChip />
               </div>
-            </div>
-          )}
-          {data.status === "error" && <ErrorBox title="We couldn't load your ballot" message={data.error ?? "Unknown error"} onRetry={data.retry} />}
-          {ballot && (
-            <>
-              <div className="mb-5 flex flex-wrap items-center gap-3">
-                <ProvenanceBadge provenance={ballot.provenance} />
-                {ballot.verifyUrl && (
-                  <a
-                    href={ballot.verifyUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm font-medium text-teal-800 underline underline-offset-2 hover:text-teal-950"
-                  >
-                    Verify on your official sample ballot &#8599;
-                  </a>
-                )}
+              <h1 id="loc-h" className="bs-display mt-3 text-[32px] text-ink">
+                Your ballot
+              </h1>
+              {loc ? (
+                <>
+                  <p className="mt-2 text-[17px] font-bold leading-snug text-ink">{loc.address ?? "Election day: Tue, Nov 3, 2026"}</p>
+                  <div className="mt-3">
+                    <LocationSummary loc={loc} />
+                  </div>
+                  <p className="mt-3">
+                    <Link href={editHref} className="font-mono text-[13px] font-bold text-accent underline underline-offset-4">
+                      Edit districts
+                    </Link>
+                  </p>
+                </>
+              ) : (
+                <div className="mt-3 space-y-2" role="status" aria-label="Finding your districts">
+                  <Skeleton className="h-5 w-4/5" />
+                  <Skeleton className="h-7 w-full" />
+                </div>
+              )}
+            </Panel>
+
+            {loc && (
+              <div className="pointer-events-auto">
+                <DistrictChangeNotice loc={loc} boundaries={data.boundaries} />
               </div>
-              {ballot.notes && (
-                <p className="mb-5 rounded-lg border border-slate-300 bg-slate-100 p-3 text-sm text-slate-800">
-                  <span className="font-semibold">Coverage note: </span>
-                  {Array.isArray(ballot.notes) ? ballot.notes.join(" ") : ballot.notes}
+            )}
+
+            <Panel dock className="pointer-events-auto !p-3 sm:!p-3">
+              {point ? (
+                <p className="text-sm leading-relaxed text-muted">
+                  Not quite right? Drag the pin or click the map to adjust. Addresses can be placed approximately, especially near district borders.
+                </p>
+              ) : (
+                <p className="font-mono text-xs text-muted" role="status">
+                  {loading && !data.boundaries
+                    ? "Loading district boundaries…"
+                    : !data.boundaries
+                      ? "District boundaries are not available for this location."
+                      : "Showing the districts you chose."}
                 </p>
               )}
-              {ballot.races.length === 0 && <EmptyState title="No races found for this location">We couldn&apos;t find races for these districts yet. Check your official sample ballot.</EmptyState>}
-              {GROUPS.map((g) => {
-                const rs = ballot.races.filter(g.match);
-                if (!rs.length) return null;
-                return (
-                  <section key={g.title} aria-labelledby={`g-${g.title}`} className="mb-6">
-                    <h3 id={`g-${g.title}`} className="mb-2 text-sm font-bold uppercase tracking-wider text-slate-700">
-                      {g.title} <span className="font-normal text-slate-600">({rs.length})</span>
-                    </h3>
-                    <ul className="space-y-2">
-                      {rs.map((r) => (
-                        <RaceRow key={r.id} race={r} qs={qs} />
-                      ))}
-                    </ul>
-                  </section>
-                );
-              })}
-            </>
-          )}
+              {point && loading && !data.boundaries && <p className="mt-1 font-mono text-xs text-muted">Loading district boundaries&hellip;</p>}
+              {point && data.status === "ready" && !data.boundaries && <p className="mt-1 font-mono text-xs text-muted">District boundaries are not available for this location.</p>}
+            </Panel>
+          </div>
+
+          <div className="flex flex-col justify-end gap-4 lg:w-[360px] lg:pb-8">
+            {loading && (
+              <Panel dock className="pointer-events-auto" role="status" aria-live="polite">
+                <p className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-[0.12em] text-accent">
+                  <LiveDot /> Working
+                </p>
+                <p className="mt-2 text-sm leading-relaxed text-muted">{data.stage}</p>
+              </Panel>
+            )}
+            {data.status === "error" && (
+              <div className="pointer-events-auto">
+                <ErrorBox title="We couldn't load your ballot" message={data.error ?? "Unknown error"} onRetry={data.retry} />
+              </div>
+            )}
+            {ballot && (
+              <Panel as="section" dock aria-label="Where this ballot comes from" className="pointer-events-auto">
+                <ProvenanceBadge provenance={ballot.provenance} />
+                {ballot.verifyUrl && (
+                  <p className="mt-3">
+                    <a href={ballot.verifyUrl} target="_blank" rel="noopener noreferrer" className={buttonClass("ghost", "sm")}>
+                      Verify on your official sample ballot <span aria-hidden="true">&#8599;</span>
+                    </a>
+                  </p>
+                )}
+              </Panel>
+            )}
+          </div>
         </div>
+      </section>
+
+      <div className="mx-auto max-w-[1360px] px-4 py-10 sm:px-6 sm:py-12">
+        {ballot?.notes && (
+          <aside aria-labelledby="cov-h" className="mb-10 rounded-panel border border-line bg-panel p-4 sm:px-5">
+            <SectionLabel as="h2" id="cov-h" className="mb-1.5">
+              Coverage note
+            </SectionLabel>
+            <p className="max-w-[90ch] text-sm leading-relaxed text-muted">{Array.isArray(ballot.notes) ? ballot.notes.join(" ") : ballot.notes}</p>
+          </aside>
+        )}
+        {loading && (
+          <div role="status" aria-label="Loading your ballot" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[0, 1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="rounded-panel border border-line bg-panel p-5">
+                <Skeleton className="h-5 w-2/3" />
+                <Skeleton className="mt-3 h-4 w-full" />
+                <Skeleton className="mt-4 h-24 w-full" />
+              </div>
+            ))}
+          </div>
+        )}
+        {ballot && ballot.races.length === 0 && (
+          <EmptyState title="No races found for this location">We couldn&apos;t find races for these districts yet. Check your official sample ballot.</EmptyState>
+        )}
+        {groups.map((g, gi) => (
+          <section key={g.title} aria-labelledby={`g-${gi}`} className="mb-10 last:mb-0">
+            <header className="mb-4 flex items-baseline gap-3 border-b border-line pb-3">
+              <span aria-hidden="true" className="font-mono text-[13px] font-bold text-accent">
+                {String(gi + 1).padStart(2, "0")}
+              </span>
+              <h2 id={`g-${gi}`} className="font-display text-2xl leading-tight tracking-[-0.02em] text-ink">
+                {g.title}
+              </h2>
+              <span className="ml-auto font-mono text-xs text-muted">
+                {g.races.length} {g.races.length === 1 ? "race" : "races"}
+              </span>
+            </header>
+            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {g.races.map((r) => (
+                <RaceRow key={r.id} race={r} qs={qs} />
+              ))}
+            </ul>
+          </section>
+        ))}
       </div>
     </div>
   );

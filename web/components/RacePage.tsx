@@ -7,7 +7,7 @@ import { useBallotData } from "./useBallotData";
 import { CandidateCard } from "./CandidateCard";
 import { ResearchPanel } from "./ResearchPanel";
 import { AskBox } from "./AskBox";
-import { EmptyState, ErrorBox, ProvenanceBadge, Skeleton } from "./ui";
+import { Chip, EmptyState, ErrorBox, ProvenanceBadge, SectionLabel, Skeleton, Panel } from "./ui";
 
 export function RacePage({ raceId }: { raceId: string }) {
   const sp = useSearchParams();
@@ -28,15 +28,15 @@ export function RacePage({ raceId }: { raceId: string }) {
     );
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6">
-      <Link href={`/ballot?${qs}`} className="text-sm font-medium text-teal-800 underline underline-offset-2">
-        &larr; Back to my ballot
+    <div className="mx-auto max-w-[1100px] px-4 py-6 sm:px-6 sm:py-8">
+      <Link href={`/ballot?${qs}`} className="inline-flex min-h-9 items-center font-mono text-xs font-bold uppercase tracking-[0.1em] text-muted no-underline hover:text-accent">
+        <span aria-hidden="true" className="mr-2">&larr;</span>Back to my ballot
       </Link>
 
       {data.status === "loading" && (
         <div role="status" className="mt-4 space-y-3">
           <span className="sr-only">Loading race</span>
-          <Skeleton className="h-9 w-2/3" />
+          <Skeleton className="h-10 w-2/3" />
           <Skeleton className="h-5 w-1/2" />
           <Skeleton className="h-20 w-full" />
           <Skeleton className="h-20 w-full" />
@@ -54,14 +54,19 @@ export function RacePage({ raceId }: { raceId: string }) {
       )}
 
       {race && data.ballot && (
-        <div className="mt-4 space-y-6">
+        <div className="mt-5 space-y-8">
           <header>
-            <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">{race.title}</h1>
-            {race.description && <p className="mt-1 text-slate-700">{race.description}</p>}
-            <div className="mt-3 flex flex-wrap items-center gap-3">
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+              <SectionLabel tone="accent">Race</SectionLabel>
+              {race.level && <Chip>{String(race.level).toUpperCase()}</Chip>}
+              <Chip>{race.candidates.length} {race.candidates.length === 1 ? "candidate" : "candidates"}</Chip>
+            </div>
+            <h1 className="bs-display text-[clamp(30px,5vw,52px)] text-ink">{race.title}</h1>
+            {race.description && <p className="mt-3 max-w-2xl text-[17px] leading-relaxed text-muted">{race.description}</p>}
+            <div className="mt-4 flex flex-wrap items-center gap-3">
               <ProvenanceBadge provenance={data.ballot.provenance} />
               {data.ballot.verifyUrl && (
-                <a href={data.ballot.verifyUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-teal-800 underline underline-offset-2">
+                <a href={data.ballot.verifyUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-accent underline underline-offset-4">
                   Verify on your official sample ballot &#8599;
                 </a>
               )}
@@ -69,21 +74,21 @@ export function RacePage({ raceId }: { raceId: string }) {
           </header>
 
           {race.measureSummary && (
-            <section aria-label="Ballot summary" className="rounded-xl border border-slate-200 bg-white p-5">
-              <h2 className="font-semibold text-slate-900">{race.kind === "retention" ? "Retention question" : "Ballot summary"}</h2>
-              <p className="mt-1 text-slate-800">{race.measureSummary}</p>
-            </section>
+            <Panel as="section" aria-label="Ballot summary">
+              <SectionLabel as="h2" tone="accent">{race.kind === "retention" ? "Retention question" : "Ballot summary"}</SectionLabel>
+              <p className="mt-2 text-ink">{race.measureSummary}</p>
+            </Panel>
           )}
 
           {race.candidates.length > 0 && (
             <section aria-labelledby="cands">
-              <h2 id="cands" className="mb-2 text-lg font-semibold text-slate-900">
+              <SectionLabel as="h2" id="cands" tone="accent">
                 Candidates{race.seats && race.seats > 1 ? ` (vote for up to ${race.seats})` : ""}
-              </h2>
-              <p className="mb-3 text-sm text-slate-700">Listed in the order provided by the source. Expand a candidate for a cited profile.</p>
+              </SectionLabel>
+              <p className="mb-4 mt-2 text-sm text-muted">Listed in the order provided by the source. Expand a candidate for a cited profile.</p>
               <ul className="space-y-3">
-                {race.candidates.map((c) => (
-                  <CandidateCard key={c.id} raceId={race.id} candidate={c} />
+                {race.candidates.map((c, i) => (
+                  <CandidateCard key={c.id} raceId={race.id} candidate={c} index={i + 1} />
                 ))}
               </ul>
             </section>

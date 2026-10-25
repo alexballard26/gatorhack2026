@@ -1,3 +1,4 @@
+import { Chip, SectionLabel } from "./ui";
 import type { DistrictBoundaries, VoterLocation } from "@/lib/types";
 
 export function locationLabels(loc: VoterLocation) {
@@ -11,18 +12,23 @@ export function locationLabels(loc: VoterLocation) {
 }
 
 export function LocationSummary({ loc }: { loc: VoterLocation }) {
-  const bits = [
-    loc.place,
-    loc.county ? `${loc.county} County, ${loc.state}` : loc.state,
-    loc.congressionalDistrict && `CD ${loc.congressionalDistrict}`,
-    loc.stateSenateDistrict && `SD ${loc.stateSenateDistrict}`,
-    loc.stateHouseDistrict && `HD ${loc.stateHouseDistrict}`,
-  ].filter(Boolean) as string[];
+  const bits: [string, string][] = (
+    [
+      loc.place && ["Place", loc.place],
+      loc.county ? ["County", loc.county] : ["State", loc.state],
+      loc.congressionalDistrict && ["CD", loc.congressionalDistrict],
+      loc.stateSenateDistrict && ["SD", loc.stateSenateDistrict],
+      loc.stateHouseDistrict && ["HD", loc.stateHouseDistrict],
+    ] as ([string, string] | "" | undefined)[]
+  ).filter(Boolean) as [string, string][];
   return (
     <ul className="flex flex-wrap gap-2" aria-label="Your districts">
-      {bits.map((b) => (
-        <li key={b} className="rounded-full border border-slate-300 bg-white px-3 py-1 text-sm text-slate-800">
-          {b}
+      {bits.map(([k, v]) => (
+        <li key={k}>
+          <Chip>
+            <span className="text-muted">{k}</span>
+            <span className="text-accent">{v}</span>
+          </Chip>
         </li>
       ))}
     </ul>
@@ -57,18 +63,25 @@ export function DistrictChangeNotice({ loc, boundaries }: { loc: VoterLocation; 
   const name = (d: string) => (d === "AL" ? "At-large district" : `District ${d}`);
   if (cur !== prev)
     return (
-      <div role="note" className="mb-5 rounded-xl border-2 border-amber-500 bg-amber-50 p-4 text-slate-900">
-        <p className="font-bold">
-          Your congressional district changed: {name(prev)} &rarr; {name(cur)} (new 2026 map)
+      <div role="note" className="rounded-panel border-2 border-accent bg-panel p-4 shadow-dock sm:p-5">
+        <SectionLabel tone="accent" className="mb-2">
+          District changed
+        </SectionLabel>
+        <p className="font-sans text-[17px] font-bold leading-snug text-ink">
+          Your congressional district changed:{" "}
+          <span className="whitespace-nowrap font-mono text-accent">
+            {name(prev)} &rarr; {name(cur)}
+          </span>{" "}
+          (new 2026 map)
         </p>
-        <p className="mt-1 text-sm text-slate-800">
+        <p className="mt-2 text-sm leading-relaxed text-muted">
           This address was in {name(prev)} for the 2024 election. Several states redrew their congressional maps since then, so the candidates on your U.S. House ballot may be different. Turn on &ldquo;Old congressional district (2024)&rdquo; on the map to compare.
         </p>
       </div>
     );
   if (boundaryChanged(boundaries?.congressional, boundaries?.previousCongressional))
     return (
-      <p role="note" className="mb-5 text-sm text-slate-700">
+      <p role="note" className="rounded-panel border border-line-strong bg-panel p-3 text-sm text-muted">
         Your congressional district number didn&apos;t change, but its boundaries may have. Compare with the &ldquo;Old congressional district (2024)&rdquo; map layer.
       </p>
     );

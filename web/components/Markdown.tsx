@@ -46,8 +46,8 @@ export function inline(text: string, sources: Source[], key: string): ReactNode[
     const k = `${key}-${n++}`;
     if (tok.startsWith("***")) out.push(<strong key={k}><em>{inline(tok.slice(3, -3), sources, k)}</em></strong>);
     else if (tok.startsWith("**")) out.push(<strong key={k}>{inline(tok.slice(2, -2), sources, k)}</strong>);
-    else if (tok.startsWith("`")) out.push(<code key={k} className="rounded bg-slate-100 px-1 text-[0.9em]">{tok.slice(1, -1)}</code>);
-    else if (m[3]) out.push(<a key={k} href={m[3]} target="_blank" rel="noopener noreferrer" className="text-teal-800 underline underline-offset-2">{m[2]}</a>);
+    else if (tok.startsWith("`")) out.push(<code key={k} className="rounded-chip border border-line bg-bg px-1 font-mono text-[0.88em] text-ink">{tok.slice(1, -1)}</code>);
+    else if (m[3]) out.push(<a key={k} href={m[3]} target="_blank" rel="noopener noreferrer" className="text-accent underline underline-offset-4">{m[2]}</a>);
     else if (m[4]) {
       const idxs = m[4].split(",").map((s) => Number(s.trim()) - 1);
       out.push(sources.length ? <Cites key={k} indexes={idxs} sources={sources} /> : tok);
@@ -109,12 +109,12 @@ export function Markdown({ text, sources = [] }: { text: string; sources?: Sourc
     const head = splitRow(rows[0]);
     const body = rows.slice(2).map(splitRow);
     blocks.push(
-      <div key={k} className="-mx-1 overflow-x-auto rounded-lg border border-slate-200" tabIndex={0} role="region" aria-label="Comparison table (scrolls horizontally)">
+      <div key={k} className="overflow-x-auto rounded-[4px] border border-line bg-bg" tabIndex={0} role="region" aria-label="Comparison table (scrolls horizontally)">
         <table className="w-full border-collapse text-sm">
           <thead>
-            <tr className="bg-teal-50">
+            <tr className="bg-raised">
               {head.map((c, i) => (
-                <th key={i} scope="col" className={`border-b border-teal-200 px-3 py-2 text-left align-bottom font-semibold text-slate-900 ${i === 0 ? "sticky left-0 z-10 bg-teal-50" : "min-w-[15rem] max-w-[26rem]"}`}>
+                <th key={i} scope="col" className={`border-b border-line-strong px-3 py-2.5 text-left align-bottom font-mono text-xs font-bold uppercase tracking-[0.06em] text-ink ${i === 0 ? "sticky left-0 z-10 bg-raised" : "min-w-[15rem] max-w-[26rem]"}`}>
                   {inline(c, sources, `${k}h${i}`)}
                 </th>
               ))}
@@ -122,9 +122,9 @@ export function Markdown({ text, sources = [] }: { text: string; sources?: Sourc
           </thead>
           <tbody>
             {body.map((r, ri) => (
-              <tr key={ri} className={ri % 2 ? "bg-slate-50" : "bg-white"}>
+              <tr key={ri} className={ri % 2 ? "bg-panel" : "bg-bg"}>
                 {head.map((_, ci) => {
-                  const cls = `border-b border-slate-100 px-3 py-2 align-top leading-relaxed ${ci === 0 ? `sticky left-0 z-10 max-w-[12rem] font-medium text-slate-900 ${ri % 2 ? "bg-slate-50" : "bg-white"}` : "min-w-[15rem] max-w-[26rem]"}`;
+                  const cls = `border-b border-line px-3 py-2 align-top leading-relaxed ${ci === 0 ? `sticky left-0 z-10 max-w-[12rem] font-bold text-ink ${ri % 2 ? "bg-panel" : "bg-bg"}` : "min-w-[15rem] max-w-[26rem]"}`;
                   const content = inline(r[ci] ?? "", sources, `${k}r${ri}c${ci}`);
                   return ci === 0 ? <th key={ci} scope="row" className={`${cls} text-left`}>{content}</th> : <td key={ci} className={cls}>{content}</td>;
                 })}
@@ -155,12 +155,12 @@ export function Markdown({ text, sources = [] }: { text: string; sources?: Sourc
       flushAll();
       const k = `h${b++}`;
       const level = h[1].length;
-      const cls = level === 1 ? "text-xl font-semibold text-slate-900" : level === 2 ? "mt-4 scroll-mt-4 border-b border-slate-200 pb-1 text-lg font-semibold text-slate-900" : "mt-2 font-semibold text-slate-900";
+      const cls = level === 1 ? "font-display text-2xl tracking-[-0.02em] text-ink" : level === 2 ? "mt-6 scroll-mt-4 border-b border-line pb-2 font-display text-xl tracking-[-0.02em] text-ink" : "mt-2 font-bold text-ink";
       const id = level === 2 ? heads[h2++]?.id : undefined;
       blocks.push(<h3 key={k} id={id} className={cls}>{inline(h[2], sources, k)}</h3>);
     } else if (/^([-*_])(\s*\1){2,}$/.test(t)) {
       flushAll();
-      blocks.push(<hr key={`r${b++}`} className="my-2 border-slate-200" />);
+      blocks.push(<hr key={`r${b++}`} className="my-4 border-line" />);
     } else if (ul || ol) {
       flushPara();
       const m = (ul ?? ol)!;
@@ -176,7 +176,7 @@ export function Markdown({ text, sources = [] }: { text: string; sources?: Sourc
   }
   flushAll();
   return (
-    <div className="space-y-3 text-slate-800">
+    <div className="space-y-3 text-muted [&_strong]:text-ink">
       {blocks.map((bl, i) => (
         <Fragment key={i}>{bl}</Fragment>
       ))}
