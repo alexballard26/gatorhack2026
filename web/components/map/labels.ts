@@ -46,23 +46,20 @@ const LEADER = new Set(["VT", "NH", "MA", "RI", "CT", "NJ", "DE", "MD", "DC"]);
 
 const sizeOf = (b: Bounds, k: number) => ({ w: (b[1][0] - b[0][0]) * k, h: (b[1][1] - b[0][1]) * k });
 
-/** National stage: full names where they fit, postal codes next, leader lines for the tiny Northeast states. */
+/** National stage: postal codes everywhere (for consistency), leader lines for the tiny Northeast states. */
 export function nationLabels(view: View, w: number, h: number, project: (lng: number, lat: number) => [number, number] | null): StateLabel[] {
   const out: StateLabel[] = [];
-  const nameSize = Math.max(9.5, Math.min(12.5, view.k * 9.2));
   const codeSize = Math.max(9.5, Math.min(12, view.k * 8.8));
   const pending: { abbr: string; ax: number; ay: number; text: string }[] = [];
   for (const s of STATE_GEOS) {
     const [x, y] = toScreen(view, s.anchor);
     const { w: bw, h: bh } = sizeOf(s.bounds, view.k);
-    const nameW = sansWidth(s.name, nameSize, 0.9);
     const codeW = monoWidth(s.abbr, codeSize, 0.5);
     if (s.abbr === "DC") {
       pending.push({ abbr: s.abbr, ax: x, ay: y, text: s.abbr });
       continue;
     }
-    if (nameW <= bw * 0.82 && nameSize * 1.2 <= bh) out.push({ abbr: s.abbr, text: s.name.toUpperCase(), x, y, size: nameSize, mono: false, anchor: "middle" });
-    else if (codeW <= bw * 0.78 && codeSize * 1.2 <= bh) out.push({ abbr: s.abbr, text: s.abbr, x, y, size: codeSize, mono: true, anchor: "middle" });
+    if (codeW <= bw * 0.78 && codeSize * 1.2 <= bh) out.push({ abbr: s.abbr, text: s.abbr, x, y, size: codeSize, mono: true, anchor: "middle" });
     else if (LEADER.has(s.abbr)) pending.push({ abbr: s.abbr, ax: x, ay: y, text: s.abbr });
   }
   // Leader labels stack in a column in the Atlantic, ordered north to south so the lines never cross.
