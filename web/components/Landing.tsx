@@ -289,15 +289,15 @@ export function Landing() {
                     {field("state", "State (2 letters)", "FL")}
                     {field("county", "County", "Alachua", "col-span-1 sm:col-span-2")}
                     {field("cd", "Congressional district", "3")}
-                    {field("sd", "State senate district", "9")}
-                    {field("hd", "State house district", "21")}
+                    {field("sd", "State senate district", "6")}
+                    {field("hd", "State house district", "22")}
                     {field("place", "City / place (optional)", "Gainesville", "col-span-2 sm:col-span-3")}
                   </div>
                   <div className="mt-4 flex flex-wrap gap-2">
                     <button type="submit" className={buttonClass("primary")}>
                       Show my ballot
                     </button>
-                    <button type="button" onClick={() => setM({ state: "FL", county: "Alachua", cd: "3", sd: "9", hd: "21", place: "Gainesville" })} className={buttonClass("ghost")}>
+                    <button type="button" onClick={() => setM({ state: "FL", county: "Alachua", cd: "3", sd: "6", hd: "22", place: "Gainesville" })} className={buttonClass("ghost")}>
                       Fill in Alachua County, FL
                     </button>
                   </div>
